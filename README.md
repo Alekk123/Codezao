@@ -1,43 +1,57 @@
-# Codezão Language
+# Documentação da Linguagem Codezão
 
-**Codezão** é uma linguagem de programação inspirada em Python, mas com uma abordagem única: é fortemente tipada e utiliza bordões populares da TV e internet brasileira. Com uma sintaxe divertida e expressiva, Codezão transforma o código em uma experiência descontraída, mantendo a robustez e a segurança oferecidas pela tipagem forte. Ideal para quem quer programar de um jeito brasileiro e criativo!
+**Codezão** é uma linguagem de programação inspirada em Python, mas com uma abordagem única. A linguagem é fortemente tipada e utiliza bordões populares da TV e internet brasileira para tornar a programação uma experiência divertida e expressiva, mantendo a robustez e segurança.
 
-## Autores
+## Índice
 
-- Alexsandro Pasinato
-- Gustavo Ferreira
-- Italo Gabriel
-- Pedro Henrique
-- Vinicius Ikeda
+- [Introdução](#introdução)
+- [Características Principais](#características-principais)
+- [Tipos de Dados](#tipos-de-dados)
+- [Estruturas de Controle](#estruturas-de-controle)
+- [Entrada e Saída](#entrada-e-saída)
+- [Exemplo de Código](#exemplo-de-código)
+- [Autores](#autores)
+- [Licença](#licença)
 
-## Funcionalidades
+## Introdução
 
-- **Sintaxe Inspirada em Bordões**: Utilize frases icônicas da cultura brasileira para programar.
-- **Tipagem Forte**: Garantia de segurança e robustez no código.
-- **Sintaxe Expressiva**: Facilita a leitura e escrita do código.
+A linguagem Codezão foi desenvolvida para oferecer uma forma criativa e divertida de programar, utilizando elementos da cultura brasileira. Ela é baseada na linguagem Python, o que a torna familiar para programadores que já possuem experiência com Python, mas com uma pegada única de bordões e expressões populares.
+
+## Características Principais
+
+- **Sintaxe Inspirada em Bordões**: Utiliza frases icônicas da cultura brasileira.
+- **Tipagem Forte**: Assegura segurança e robustez no código.
+- **Experiência Divertida**: Transforma o ato de programar em uma atividade descontraída.
 
 ## Tipos de Dados
 
-A linguagem Codezão utiliza os seguintes tipos de dados:
+A linguagem Codezão suporta os seguintes tipos de dados, cada um associado a um bordão famoso:
 
-- `int` - `SeViraNos30`
-- `float` - `QuemQuerDinheiro?`
-- `char` - `Maoee`
-- `boolean` - `APipaDoVovoNaoSobeMais`
+- **Inteiros (int)**: Representado por `SeViraNos30`
+- **Pontos Flutuantes (float)**: Representado por `QuemQuerDinheiro?`
+- **Caracteres (char)**: Representado por `Maoee`
+- **Booleanos (boolean)**: Representado por `APipaDoVovoNaoSobeMais`
 
 ## Estruturas de Controle
 
-- `for` loop: `VaiQueEhTua`
-- `while` loop: `RodaARoda`
-- `break`: `CortaPraMim`
-- `if`: `EhUmaCiladaBino`
-- `else if`: `VoceEstaCertoDisso`
-- `else`: `Errrou`
+Codezão oferece estruturas de controle tradicionais com nomes criativos:
+
+- **Função**: `function` é representado por `QuemSabeFazAoVivo`
+- **Função Principal**: `main` é representado por `OlaTudoBem`
+- **Retorno**: `return` é representado por `BeijoDoGordo`
+- **Laço de Repetição (for)**: Representado por `VaiQueEhTua`
+- **Laço de Repetição (while)**: Representado por `RodaARoda`
+- **Interrupção de Laço (break)**: Representado por `CortaPraMim`
+- **Condicional (if)**: Representado por `EhUmaCiladaBino`
+- **Else If**: Representado por `VoceEstaCertoDisso`
+- **Else**: Representado por `Errrou`
 
 ## Entrada e Saída
 
-- `scanf`: `RECEBA`
-- `printf`: `PoeNaTela`
+Para entrada e saída de dados, Codezão utiliza os seguintes comandos:
+
+- **Entrada (scanf)**: Representado por `RECEBA`
+- **Saída (printf)**: Representado por `PoeNaTela`
 
 ## Exemplo de Código
 
@@ -52,3 +66,18 @@ OlaTudoBem
   Errrou
     PoeNaTela "Número menor ou igual a 10"
 BeijoDoGordo
+```
+
+## Autores
+
+- [Alexsandro Pasinato](https://github.com/Alekk123)
+- [Gustavo Ferreira](https://github.com/GustavoMCF)
+- [Italo Gabriel]
+- [Pedro Melo](https://github.com/PedroHenriqueMM)
+- [Vinicius Ikeda]
+
+## Licença
+
+Este projeto está licenciado sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+
+Esperamos que este projeto seja útil e contribua para a melhoria da segurança no trânsito. Agradecemos pelo seu interesse e colaboração!
