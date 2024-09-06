@@ -96,27 +96,30 @@ class Parser:
     # Parsing de declaração de variável
     def variable_declaration(self):
         """Faz o parsing de uma declaração de variável."""
-        var_type = self.current_token()  # Tipo da variável (SeViraNos30, QuemQuerDinheiro, APipaDoVovoNaoSobeMais)
+        var_type = self.current_token()  # Tipo da variável
         
-        # Suporte para int, float e boolean
+        # Suporte para int, float, boolean e char
         if var_type[0] == 'INT':
             self.eat('INT')
         elif var_type[0] == 'FLOAT':
             self.eat('FLOAT')
-        elif var_type[0] == 'BOOLEAN':  # Adiciona suporte para boolean
+        elif var_type[0] == 'BOOLEAN':
             self.eat('BOOLEAN')
+        elif var_type[0] == 'CHAR':  # Suporte para char (Maoee)
+            self.eat('CHAR')
         
         var_name = self.current_token()  # Nome da variável
         self.eat('ID')
     
-        # Verificar se há uma atribuição inicial
+        # Verifica se há uma atribuição inicial
         value = None
         if self.current_token()[0] == 'ASSIGN':
             self.eat('ASSIGN')
-            value = self.current_token()
-            if var_type[0] == 'BOOLEAN':  # Booleans podem ser True ou False
-                self.eat('ID')  # Espera 'True' ou 'False'
+            if var_type[0] == 'CHAR':  # Para char, espera uma string de um único caractere
+                value = self.current_token()
+                self.eat('STRING')  # Espera uma string
             else:
+                value = self.current_token()
                 self.eat('NUMBER')  # Espera um número
     
         self.eat('END')  # Consome ';'
@@ -174,6 +177,8 @@ class Parser:
             elif self.current_token()[0] == 'FLOAT':  # Suporte para float
                 body.append(self.variable_declaration())
             elif self.current_token()[0] == 'BOOLEAN':  # Suporte para boolean
+                body.append(self.variable_declaration())
+            elif self.current_token()[0] == 'CHAR':  # Suporte para char (Maoee)
                 body.append(self.variable_declaration())
             elif self.current_token()[0] == 'PRINT':
                 body.append(self.print_statement())

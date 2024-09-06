@@ -1,0 +1,8 @@
+SeViraNos30 OlaTudoBem() {
+    Maoee inicial;
+    PoeNaTela("Digite uma letra: ");
+    Receba(inicial);
+    PoeNaTela("Letra digitada: ");
+    PoeNaTela(inicial);
+    BeijoDoGordo 0;
+}

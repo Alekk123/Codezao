@@ -47,8 +47,11 @@ class Compiler:
         elif node.var_type == 'QuemQuerDinheiro':
             value = node.value if node.value else 0.0
             return f"{node.var_name} = {value}"
-        elif node.var_type == 'APipaDoVovoNaoSobeMais':  # Suporte para boolean
+        elif node.var_type == 'APipaDoVovoNaoSobeMais':
             value = node.value if node.value else "False"
+            return f"{node.var_name} = {value}"
+        elif node.var_type == 'Maoee':  # Suporte para char (Maoee)
+            value = node.value if node.value else "' '"
             return f"{node.var_name} = {value}"
 
     def compile_binop(self, node):
@@ -83,7 +86,7 @@ class Compiler:
                     f'    except ValueError:\n'
                     f'      print("Erro: A variável {node.var_name} deve receber um número float!")\n'
                     f'      raise ValueError("A variável {node.var_name} deve ser um número float!")')
-        elif var_type == 'APipaDoVovoNaoSobeMais':  # Validação para boolean
+        elif var_type == 'APipaDoVovoNaoSobeMais':
             return (f'while True:\n'
                     f'      valor = input().lower()\n'
                     f'      if valor in ["true", "false"]:\n'
@@ -91,6 +94,14 @@ class Compiler:
                     f'          break\n'
                     f'      else:\n'
                     f'          print("Erro: A variável {node.var_name} deve receber True ou False!")')
+        elif var_type == 'Maoee':  # Validação para char
+            return (f'while True:\n'
+                    f'      valor = input()\n'
+                    f'      if len(valor) == 1:\n'
+                    f'          {node.var_name} = valor\n'
+                    f'          break\n'
+                    f'      else:\n'
+                    f'          print("Erro: A variável {node.var_name} deve receber um único caractere!")')
         else:
             return f'{node.var_name} = input()'
 

@@ -4,7 +4,7 @@ import re
 TOKEN_SPECIFICATION = [
     ('INT', r'SeViraNos30'),     # Tipo int
     ('FLOAT', r'QuemQuerDinheiro'), # Tipo float
-    ('CHAR', r'char'),           # Tipo char
+    ('CHAR', r'Maoee'),           # Tipo char
     ('BOOLEAN', r'APipaDoVovoNaoSobeMais'),  # Tipo boolean
     ('RETURN', r'BeijoDoGordo'), # Palavra-chave return
     ('PRINT', r'PoeNaTela'),     # Comando PoeNaTela
