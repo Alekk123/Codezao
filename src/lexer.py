@@ -5,10 +5,9 @@ TOKEN_SPECIFICATION = [
     ('INT', r'SeViraNos30'),     # Tipo int
     ('FLOAT', r'float'),         # Tipo float
     ('CHAR', r'char'),           # Tipo char
-#    ('MAIN', r'OlaTudoBem'),    # Função principal
     ('RETURN', r'BeijoDoGordo'), # Palavra-chave return
     ('PRINT', r'PoeNaTela'),     # Comando PoeNaTela
-    ('INPUT', r'Receba'),        # Comando Receba (novo)
+    ('INPUT', r'Receba'),        # Comando Receba
     ('NUMBER', r'\d+(\.\d*)?'),  # Números inteiros e de ponto flutuante
     ('ASSIGN', r'='),            # Operador de atribuição
     ('END', r';'),               # Fim de instrução
@@ -25,19 +24,33 @@ TOKEN_SPECIFICATION = [
 ]
 
 # Compilação das expressões regulares
-TOKEN_REGEX = '|'.join('(?P<%s>%s)' % pair for pair in TOKEN_SPECIFICATION)
+TOKEN_REGEX = '|'.join(f'(?P<{name}>{regex})' for name, regex in TOKEN_SPECIFICATION)
 
 def tokenize(code):
+    """
+    Tokeniza o código de entrada.
+    
+    Args:
+        code (str): Código fonte a ser tokenizado.
+    
+    Returns:
+        list: Lista de tokens identificados no código.
+    """
     tokens = []
-    for mo in re.finditer(TOKEN_REGEX, code):
-        kind = mo.lastgroup
-        value = mo.group()
+    
+    # Itera sobre todas as correspondências das regex no código
+    for match_object in re.finditer(TOKEN_REGEX, code):
+        kind = match_object.lastgroup  # Nome do token identificado
+        value = match_object.group()   # Valor do token
+        
         if kind == 'NEWLINE':
-            continue
+            continue  # Ignora novas linhas
         elif kind == 'SKIP':
-            continue
+            continue  # Ignora espaços e tabulações
         elif kind == 'MISMATCH':
+            # Lança erro para caracteres inesperados
             raise RuntimeError(f'Unexpected character {value!r}')
         else:
             tokens.append((kind, value))
+    
     return tokens

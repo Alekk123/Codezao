@@ -7,80 +7,86 @@ class Compiler:
         self.variable_types = {}  # Inicializar a tabela de tipos de variáveis
 
     def compile(self, node):
+        """Função principal que decide como compilar cada tipo de nó."""
         if isinstance(node, FuncDecl):
-            self.output.append(f"def {node.func_name}():")
-            for stmt in node.body:
-                compiled_stmt = self.compile(stmt)
-                if compiled_stmt:
-                    self.output.append(f"    {compiled_stmt}")
-            self.output.append("")  # Adiciona uma linha em branco após a função
+            return self.compile_function(node)
         elif isinstance(node, VarDecl):
-            # Armazena o tipo da variável na tabela de tipos
-            self.variable_types[node.var_name] = node.var_type
-            if node.var_type == 'SeViraNos30':
-                value = node.value if node.value else 0
-                return f"{node.var_name} = {value}"
+            return self.compile_variable(node)
         elif isinstance(node, BinOp):
-            left = self.compile(node.left)
-            right = self.compile(node.right)
-            return f"{left} {node.op} {right}"
+            return self.compile_binop(node)
         elif isinstance(node, Num):
-            return node.value
+            return self.compile_num(node)
         elif isinstance(node, Print):
-             # Verifica se é uma string ou uma variável para imprimir
-            if node.text.startswith('"'):  # Verifica se é uma string
-                return f'print({node.text})'
-            else:  # Se for um identificador (variável)
-                return f'print({node.text})'
-        elif isinstance(node, Input):  # Suporte para Receba
-            # Verifica o tipo da variável antes de gerar o código de input
-            var_type = self.variable_types.get(node.var_name, None)
-            if var_type == 'SeViraNos30':
-                # Se a variável for do tipo SeViraNos30, garante que o valor inserido seja um número inteiro
-                return (f'try:\n'
-                        f'      {node.var_name} = int(input())\n'
-                        f'    except ValueError:\n'
-                        f'      print("Erro: A variável {node.var_name} deve receber um número inteiro!")\n'
-                        f'      raise ValueError("A variável {node.var_name} deve ser um número inteiro!")')
-            else:
-                # Se for outro tipo, aceita qualquer valor
-                return f'{node.var_name} = input()'
-        elif isinstance(node, FunctionCall):  # Suporte para chamadas de função
-            return f'{node.func_name}()'
-        elif isinstance(node, int):  # Ajuste para reconhecer nós de retorno que são inteiros
-            return f"return {node}"  # Retorna corretamente em Python
-        elif isinstance(node, list):  # Quando compilar o corpo da função que pode ser uma lista
-            for stmt in node:
-                self.compile(stmt)
+            return self.compile_print(node)
+        elif isinstance(node, Input):
+            return self.compile_input(node)
+        elif isinstance(node, FunctionCall):
+            return self.compile_function_call(node)
+        elif isinstance(node, int):
+            return self.compile_return(node)
+        elif isinstance(node, list):
+            return self.compile_body(node)
         return None
 
+# Métodos separados para cada tipo de compilação
+    def compile_function(self, node):
+        """Compila uma declaração de função."""
+        self.output.append(f"def {node.func_name}():")
+        for stmt in node.body:
+            compiled_stmt = self.compile(stmt)
+            if compiled_stmt:
+                self.output.append(f"    {compiled_stmt}")
+        self.output.append("")  # Adiciona uma linha em branco após a função
+
+    def compile_variable(self, node):
+        """Compila a declaração de uma variável."""
+        self.variable_types[node.var_name] = node.var_type
+        if node.var_type == 'SeViraNos30':
+            value = node.value if node.value else 0
+            return f"{node.var_name} = {value}"
+
+    def compile_binop(self, node):
+        """Compila operações binárias."""
+        left = self.compile(node.left)
+        right = self.compile(node.right)
+        return f"{left} {node.op} {right}"
+
+    def compile_num(self, node):
+        """Compila números."""
+        return node.value
+
+    def compile_print(self, node):
+        """Compila a instrução de impressão (PoeNaTela)."""
+        if node.text.startswith('"'):  # Se for string
+            return f'print({node.text})'
+        else:  # Se for uma variável
+            return f'print({node.text})'
+
+    def compile_input(self, node):
+        """Compila a instrução de entrada (Receba)."""
+        var_type = self.variable_types.get(node.var_name, None)
+        if var_type == 'SeViraNos30':
+            return (f'try:\n'
+                    f'      {node.var_name} = int(input())\n'
+                    f'    except ValueError:\n'
+                    f'      print("Erro: A variável {node.var_name} deve receber um número inteiro!")\n'
+                    f'      raise ValueError("A variável {node.var_name} deve ser um número inteiro!")')
+        else:
+            return f'{node.var_name} = input()'
+
+    def compile_function_call(self, node):
+        """Compila chamadas de função."""
+        return f'{node.func_name}()'
+
+    def compile_return(self, node):
+        """Compila instruções de retorno."""
+        return f"return {node}"
+
+    def compile_body(self, body):
+        """Compila um bloco de código que é uma lista de instruções."""
+        for stmt in body:
+            self.compile(stmt)
+
     def get_output(self):
+        """Retorna o código Python gerado."""
         return "\n".join(self.output)
-
-# Exemplo de uso:
-if __name__ == "__main__":
-    from lexer import tokenize
-    from pyc_parser import Parser
-
-    code = '''
-    int main() {
-        PoeNaTela("Hello, World!");
-        return 0;
-    }
-    '''
-
-    tokens = tokenize(code)
-    parser = Parser(tokens)
-    ast = parser.parse()
-    
-    compiler = Compiler()
-    compiler.compile(ast)
-    python_code = compiler.get_output()
-
-    print("Python Code:")
-    print(python_code)
-
-    # Execute o código Python gerado
-    exec(python_code)
-
-

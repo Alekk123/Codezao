@@ -5,54 +5,66 @@ class AST:
 # Classes para diferentes tipos de nós na AST
 class BinOp(AST):
     def __init__(self, left, op, right):
+        """Define uma operação binária com operandos esquerdo e direito."""
         self.left = left
         self.op = op
         self.right = right
 
 class Num(AST):
     def __init__(self, token):
+        """Representa um número na AST."""
         self.value = token[1]
 
 class VarDecl(AST):
     def __init__(self, var_type, var_name, value):
+        """Declaração de variável na AST."""
         self.var_type = var_type
         self.var_name = var_name
         self.value = value
 
 class FuncDecl(AST):
     def __init__(self, return_type, func_name, body):
+        """Declaração de função na AST."""
         self.return_type = return_type
         self.func_name = func_name
         self.body = body
 
 class Print(AST):
     def __init__(self, text):
+        """Instrução de impressão na AST."""
         self.text = text
 
 class Input:
     def __init__(self, var_name):
+        """Instrução de entrada (input) na AST."""
         self.var_name = var_name
 
 class FunctionCall:
     def __init__(self, func_name):
+        """Chamada de função na AST."""
         self.func_name = func_name
-        
+
 # Definição do Parser
 class Parser:
     def __init__(self, tokens):
+        """Inicializa o Parser com uma lista de tokens."""
         self.tokens = tokens
         self.pos = 0
 
     def current_token(self):
+        """Retorna o token atual."""
         return self.tokens[self.pos] if self.pos < len(self.tokens) else None
 
     def eat(self, token_type):
+        """Verifica e consome o token esperado."""
         if self.current_token() and self.current_token()[0] == token_type:
             self.pos += 1
         else:
             raise Exception(f'Error parsing input: Expected {token_type}, got {self.current_token()}')
 
+    # Parsing de expressões e termos
     def factor(self):
+        """Faz o parsing de um fator (número ou variável)."""
         token = self.current_token()
         if token[0] == 'NUMBER':
             self.eat('NUMBER')
@@ -64,6 +76,7 @@ class Parser:
             raise Exception('Invalid syntax')
 
     def term(self):
+        """Faz o parsing de um termo, lidando com multiplicação e divisão."""
         node = self.factor()
         while self.current_token() and self.current_token()[0] in ('MUL', 'DIV'):
             token = self.current_token()
@@ -72,6 +85,7 @@ class Parser:
         return node
 
     def expr(self):
+        """Faz o parsing de uma expressão, lidando com adição e subtração."""
         node = self.term()
         while self.current_token() and self.current_token()[0] in ('PLUS', 'MINUS'):
             token = self.current_token()
@@ -79,44 +93,35 @@ class Parser:
             node = BinOp(left=node, op=token, right=self.term())
         return node
 
-    # def variable_declaration(self):
-    #     var_type = self.current_token()
-    #     if var_type[0] in ('INT', 'FLOAT', 'CHAR'):
-    #         self.eat(var_type[0])
-    #         var_name = self.current_token()
-    #         self.eat('ID')
-    #         self.eat('ASSIGN')
-    #         value = self.expr()
-    #         self.eat('END')
-    #         return VarDecl(var_type=var_type[1], var_name=var_name[1], value=value)
-    #     else:
-    #         raise Exception(f"Unexpected variable type {var_type}")
+    # Parsing de declaração de variável
     def variable_declaration(self):
+        """Faz o parsing de uma declaração de variável."""
         var_type = self.current_token()  # Tipo da variável
         self.eat('INT')  # Consome 'SeViraNos30'
         var_name = self.current_token()  # Nome da variável
-        self.eat('ID')  # Consome o nome da variável
+        self.eat('ID')
     
-        # Verificar se há uma atribuição inicial (inicialização da variável)
+        # Verificar se há uma atribuição inicial
         value = None
-        if self.current_token()[0] == 'ASSIGN':  # Verifica se há um '=' após a variável
+        if self.current_token()[0] == 'ASSIGN':
             self.eat('ASSIGN')
             value = self.current_token()
-            self.eat('NUMBER')  # Espera um valor numérico após '='
+            self.eat('NUMBER')  # Espera um número após '='
     
-        self.eat('END')  # Espera um ';'
-    
+        self.eat('END')  # Consome ';'
         return VarDecl(var_type=var_type[1], var_name=var_name[1], value=value[1] if value else None)
 
+    # Parsing da instrução de impressão (PoeNaTela)
     def print_statement(self):
+        """Faz o parsing de uma instrução de impressão (PoeNaTela)."""
         self.eat('PRINT')
         self.eat('LPAREN')
     
-        # Verifica se é uma string ou um identificador
+        # Verifica se é uma string ou variável (ID)
         if self.current_token()[0] == 'STRING':
             text = self.current_token()
             self.eat('STRING')
-        elif self.current_token()[0] == 'ID':  # Caso de impressão de uma variável (ID)
+        elif self.current_token()[0] == 'ID':
             text = self.current_token()
             self.eat('ID')
         else:
@@ -126,24 +131,28 @@ class Parser:
         self.eat('END')
     
         return Print(text=text[1])
-    
-    def input_statement(self):  # Adiciona suporte para Receba()
+
+    # Parsing da instrução de entrada (Receba)
+    def input_statement(self):
+        """Faz o parsing de uma instrução de entrada (Receba)."""
         self.eat('INPUT')
         self.eat('LPAREN')
-        var_name = self.current_token()  # Nome da variável que receberá o input
+        var_name = self.current_token()
         self.eat('ID')
         self.eat('RPAREN')
         self.eat('END')
         return Input(var_name=var_name[1])
 
+    # Parsing de funções
     def function_declaration(self):
-        return_type = self.current_token()  # Tipo de retorno da função
-        self.eat('INT')  # Consome 'SeViraNos30'
-        func_name = self.current_token()  # Nome da função
+        """Faz o parsing de uma declaração de função."""
+        return_type = self.current_token()
+        self.eat('INT')
+        func_name = self.current_token()
         self.eat('ID')
-        self.eat('LPAREN')  # Consome '('
-        self.eat('RPAREN')  # Consome ')'
-        self.eat('LBRACE')  # Consome '{'
+        self.eat('LPAREN')
+        self.eat('RPAREN')
+        self.eat('LBRACE')
 
         # Corpo da função
         body = []
@@ -161,26 +170,30 @@ class Parser:
         
         self.eat('RBRACE')  # Consome '}'
         return FuncDecl(return_type=return_type[1], func_name=func_name[1], body=body)
-    
-    def return_statement(self):
-        self.eat('RETURN')  # Consome 'BeijoDoGordo'
-        return_value = self.current_token()  # Valor a ser retornado (no caso, '0')
-        self.eat('NUMBER')  # Consome o número
-        self.eat('END')  # Consome ';'
-        return return_value[1]  # Retorna o valor numérico
 
+    # Parsing da instrução de retorno
+    def return_statement(self):
+        """Faz o parsing de uma instrução de retorno (BeijoDoGordo)."""
+        self.eat('RETURN')
+        return_value = self.current_token()
+        self.eat('NUMBER')
+        self.eat('END')
+        return return_value[1]
+
+    # Parsing de chamada de função
     def function_call(self):
+        """Faz o parsing de uma chamada de função."""
         func_name = self.current_token()
-        self.eat('ID')  # Consome o identificador da função
-        self.eat('LPAREN')  # Consome o '('
-        self.eat('RPAREN')  # Consome o ')'
-        self.eat('END')  # Consome o ';'
+        self.eat('ID')
+        self.eat('LPAREN')
+        self.eat('RPAREN')
+        self.eat('END')
         return FunctionCall(func_name=func_name[1])
 
     def parse(self):
+        """Função principal que inicia o parsing."""
         token = self.current_token()
         if token and token[0] == 'INT':
-            # Distinguindo entre declaração de variável e função
             next_token = self.tokens[self.pos + 1]
             if next_token[0] == 'ID' and self.tokens[self.pos + 2][0] == 'LPAREN':
                 return self.function_declaration()
