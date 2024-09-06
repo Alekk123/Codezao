@@ -3,7 +3,7 @@ import re
 # Definição de tokens usando expressões regulares
 TOKEN_SPECIFICATION = [
     ('INT', r'SeViraNos30'),     # Tipo int
-    ('FLOAT', r'float'),         # Tipo float
+    ('FLOAT', r'QuemQuerDinheiro'), # Tipo float
     ('CHAR', r'char'),           # Tipo char
     ('RETURN', r'BeijoDoGordo'), # Palavra-chave return
     ('PRINT', r'PoeNaTela'),     # Comando PoeNaTela

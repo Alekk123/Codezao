@@ -96,8 +96,14 @@ class Parser:
     # Parsing de declaração de variável
     def variable_declaration(self):
         """Faz o parsing de uma declaração de variável."""
-        var_type = self.current_token()  # Tipo da variável
-        self.eat('INT')  # Consome 'SeViraNos30'
+        var_type = self.current_token()  # Tipo da variável (SeViraNos30, QuemQuerDinheiro, etc.)
+        
+        # Suporte para int e float
+        if var_type[0] == 'INT':  # Se for SeViraNos30
+            self.eat('INT')
+        elif var_type[0] == 'FLOAT':  # Se for QuemQuerDinheiro
+            self.eat('FLOAT')
+        
         var_name = self.current_token()  # Nome da variável
         self.eat('ID')
     
@@ -106,7 +112,7 @@ class Parser:
         if self.current_token()[0] == 'ASSIGN':
             self.eat('ASSIGN')
             value = self.current_token()
-            self.eat('NUMBER')  # Espera um número após '='
+            self.eat('NUMBER')  # Espera um número (int ou float)
     
         self.eat('END')  # Consome ';'
         return VarDecl(var_type=var_type[1], var_name=var_name[1], value=value[1] if value else None)
@@ -146,18 +152,20 @@ class Parser:
     # Parsing de funções
     def function_declaration(self):
         """Faz o parsing de uma declaração de função."""
-        return_type = self.current_token()
-        self.eat('INT')
-        func_name = self.current_token()
+        return_type = self.current_token()  # Tipo de retorno da função
+        self.eat('INT')  # Consome 'SeViraNos30' como tipo de retorno da função
+        func_name = self.current_token()  # Nome da função
         self.eat('ID')
-        self.eat('LPAREN')
-        self.eat('RPAREN')
-        self.eat('LBRACE')
+        self.eat('LPAREN')  # Consome '('
+        self.eat('RPAREN')  # Consome ')'
+        self.eat('LBRACE')  # Consome '{'
 
         # Corpo da função
         body = []
         while self.current_token() and self.current_token()[0] != 'RBRACE':
             if self.current_token()[0] == 'INT':
+                body.append(self.variable_declaration())
+            elif self.current_token()[0] == 'FLOAT':  # Adiciona suporte para QuemQuerDinheiro
                 body.append(self.variable_declaration())
             elif self.current_token()[0] == 'PRINT':
                 body.append(self.print_statement())

@@ -1,10 +1,17 @@
 SeViraNos30 OlaTudoBem() {
     SeViraNos30 idade;
+    QuemQuerDinheiro salario;
     PoeNaTela("Digite sua idade: ");
     Receba(idade);
-    PoeNaTela(idade);
+    PoeNaTela("Digite seu salário: ");
+    Receba(salario);
+    PoeNaTela("Digite seu nome: ");
     Receba(nome);
-    PoeNaTela("Olá, ");
+    PoeNaTela("Idade: ");
+    PoeNaTela(idade);
+    PoeNaTela("Salário: ");
+    PoeNaTela(salario);
+    PoeNaTela("Nome: ");
     PoeNaTela(nome);
     BeijoDoGordo 0;
 }

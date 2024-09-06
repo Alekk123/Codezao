@@ -44,6 +44,9 @@ class Compiler:
         if node.var_type == 'SeViraNos30':
             value = node.value if node.value else 0
             return f"{node.var_name} = {value}"
+        elif node.var_type == 'QuemQuerDinheiro':  # Suporte para float
+            value = node.value if node.value else 0.0
+            return f"{node.var_name} = {value}"
 
     def compile_binop(self, node):
         """Compila operações binárias."""
@@ -71,6 +74,12 @@ class Compiler:
                     f'    except ValueError:\n'
                     f'      print("Erro: A variável {node.var_name} deve receber um número inteiro!")\n'
                     f'      raise ValueError("A variável {node.var_name} deve ser um número inteiro!")')
+        elif var_type == 'QuemQuerDinheiro':  # Validação para float
+            return (f'try:\n'
+                    f'      {node.var_name} = float(input())\n'
+                    f'    except ValueError:\n'
+                    f'      print("Erro: A variável {node.var_name} deve receber um número float!")\n'
+                    f'      raise ValueError("A variável {node.var_name} deve ser um número float!")')
         else:
             return f'{node.var_name} = input()'
 
