@@ -2,10 +2,10 @@ import re
 
 # Definição de tokens usando expressões regulares
 TOKEN_SPECIFICATION = [
-    ('INT', r'int'),             # Tipo int
+    ('INT', r'SeViraNos30'),     # Tipo int
     ('FLOAT', r'float'),         # Tipo float
     ('CHAR', r'char'),           # Tipo char
-#    ('MAIN', r'OlaTudoBem'),     # Função principal
+#    ('MAIN', r'OlaTudoBem'),    # Função principal
     ('RETURN', r'BeijoDoGordo'), # Palavra-chave return
     ('PRINT', r'PoeNaTela'),     # Comando PoeNaTela
     ('INPUT', r'Receba'),        # Comando Receba (novo)

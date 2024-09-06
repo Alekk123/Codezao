@@ -1,5 +1,8 @@
-int OlaTudoBem() {
-    PoeNaTela("Digite seu nome: ");
+SeViraNos30 OlaTudoBem() {
+    SeViraNos30 idade;
+    PoeNaTela("Digite sua idade: ");
+    Receba(idade);
+    PoeNaTela(idade);
     Receba(nome);
     PoeNaTela("Olá, ");
     PoeNaTela(nome);

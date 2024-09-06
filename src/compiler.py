@@ -4,6 +4,7 @@ from pyc_parser import BinOp, Num, VarDecl, FuncDecl, Print, Input, FunctionCall
 class Compiler:
     def __init__(self):
         self.output = []
+        self.variable_types = {}  # Inicializar a tabela de tipos de variáveis
 
     def compile(self, node):
         if isinstance(node, FuncDecl):
@@ -14,7 +15,11 @@ class Compiler:
                     self.output.append(f"    {compiled_stmt}")
             self.output.append("")  # Adiciona uma linha em branco após a função
         elif isinstance(node, VarDecl):
-            return f"{node.var_name} = {node.value.value}"
+            # Armazena o tipo da variável na tabela de tipos
+            self.variable_types[node.var_name] = node.var_type
+            if node.var_type == 'SeViraNos30':
+                value = node.value if node.value else 0
+                return f"{node.var_name} = {value}"
         elif isinstance(node, BinOp):
             left = self.compile(node.left)
             right = self.compile(node.right)
@@ -22,9 +27,24 @@ class Compiler:
         elif isinstance(node, Num):
             return node.value
         elif isinstance(node, Print):
-            return f'print({node.text})'
+             # Verifica se é uma string ou uma variável para imprimir
+            if node.text.startswith('"'):  # Verifica se é uma string
+                return f'print({node.text})'
+            else:  # Se for um identificador (variável)
+                return f'print({node.text})'
         elif isinstance(node, Input):  # Suporte para Receba
-            return f'{node.var_name} = input()'
+            # Verifica o tipo da variável antes de gerar o código de input
+            var_type = self.variable_types.get(node.var_name, None)
+            if var_type == 'SeViraNos30':
+                # Se a variável for do tipo SeViraNos30, garante que o valor inserido seja um número inteiro
+                return (f'try:\n'
+                        f'      {node.var_name} = int(input())\n'
+                        f'    except ValueError:\n'
+                        f'      print("Erro: A variável {node.var_name} deve receber um número inteiro!")\n'
+                        f'      raise ValueError("A variável {node.var_name} deve ser um número inteiro!")')
+            else:
+                # Se for outro tipo, aceita qualquer valor
+                return f'{node.var_name} = input()'
         elif isinstance(node, FunctionCall):  # Suporte para chamadas de função
             return f'{node.func_name}()'
         elif isinstance(node, int):  # Ajuste para reconhecer nós de retorno que são inteiros

@@ -79,18 +79,34 @@ class Parser:
             node = BinOp(left=node, op=token, right=self.term())
         return node
 
+    # def variable_declaration(self):
+    #     var_type = self.current_token()
+    #     if var_type[0] in ('INT', 'FLOAT', 'CHAR'):
+    #         self.eat(var_type[0])
+    #         var_name = self.current_token()
+    #         self.eat('ID')
+    #         self.eat('ASSIGN')
+    #         value = self.expr()
+    #         self.eat('END')
+    #         return VarDecl(var_type=var_type[1], var_name=var_name[1], value=value)
+    #     else:
+    #         raise Exception(f"Unexpected variable type {var_type}")
     def variable_declaration(self):
-        var_type = self.current_token()
-        if var_type[0] in ('INT', 'FLOAT', 'CHAR'):
-            self.eat(var_type[0])
-            var_name = self.current_token()
-            self.eat('ID')
+        var_type = self.current_token()  # Tipo da variável
+        self.eat('INT')  # Consome 'SeViraNos30'
+        var_name = self.current_token()  # Nome da variável
+        self.eat('ID')  # Consome o nome da variável
+    
+        # Verificar se há uma atribuição inicial (inicialização da variável)
+        value = None
+        if self.current_token()[0] == 'ASSIGN':  # Verifica se há um '=' após a variável
             self.eat('ASSIGN')
-            value = self.expr()
-            self.eat('END')
-            return VarDecl(var_type=var_type[1], var_name=var_name[1], value=value)
-        else:
-            raise Exception(f"Unexpected variable type {var_type}")
+            value = self.current_token()
+            self.eat('NUMBER')  # Espera um valor numérico após '='
+    
+        self.eat('END')  # Espera um ';'
+    
+        return VarDecl(var_type=var_type[1], var_name=var_name[1], value=value[1] if value else None)
 
     def print_statement(self):
         self.eat('PRINT')
@@ -121,39 +137,37 @@ class Parser:
         return Input(var_name=var_name[1])
 
     def function_declaration(self):
-        return_type = self.current_token()  # Capture o tipo de retorno da função
-        self.eat('INT')  # Come a declaração de tipo 'int'
-    
-        func_name = self.current_token()
-        self.eat('ID')  # Consome o identificador da função
+        return_type = self.current_token()  # Tipo de retorno da função
+        self.eat('INT')  # Consome 'SeViraNos30'
+        func_name = self.current_token()  # Nome da função
+        self.eat('ID')
+        self.eat('LPAREN')  # Consome '('
+        self.eat('RPAREN')  # Consome ')'
+        self.eat('LBRACE')  # Consome '{'
 
-        # if self.current_token()[0] == 'MAIN':
-        #     self.eat('MAIN')  # Come o identificador da função 'main'
-        # else:
-        #     self.eat('ID')  # Para outras funções CUIDADO, SE FOR UTILIZAR OlaTudoBem como main e não criar outras funçoes, retirar esse else
-
-        self.eat('LPAREN')  # Come o '('
-        self.eat('RPAREN')  # Come o ')'
-        self.eat('LBRACE')  # Come a abertura '{'
-
+        # Corpo da função
         body = []
-        # Agora, percorre até encontrar a chave de fechamento '}'
         while self.current_token() and self.current_token()[0] != 'RBRACE':
-            if self.current_token()[0] == 'PRINT':
+            if self.current_token()[0] == 'INT':
+                body.append(self.variable_declaration())
+            elif self.current_token()[0] == 'PRINT':
                 body.append(self.print_statement())
-            elif self.current_token()[0] == 'INPUT':  # Para a função Receba()
-             body.append(self.input_statement())
+            elif self.current_token()[0] == 'INPUT':
+                body.append(self.input_statement())
             elif self.current_token()[0] == 'RETURN':
-                self.eat('RETURN')
-                return_value = self.current_token()
-                self.eat('NUMBER')
-                body.append(return_value[1])
-                self.eat('END')
-
-        self.eat('RBRACE')  # Aqui espera o '}'
-    
-        # Agora incluímos o return_type ao instanciar FuncDecl
+                body.append(self.return_statement())
+            else:
+                raise Exception(f"Unexpected token {self.current_token()} in function body")
+        
+        self.eat('RBRACE')  # Consome '}'
         return FuncDecl(return_type=return_type[1], func_name=func_name[1], body=body)
+    
+    def return_statement(self):
+        self.eat('RETURN')  # Consome 'BeijoDoGordo'
+        return_value = self.current_token()  # Valor a ser retornado (no caso, '0')
+        self.eat('NUMBER')  # Consome o número
+        self.eat('END')  # Consome ';'
+        return return_value[1]  # Retorna o valor numérico
 
     def function_call(self):
         func_name = self.current_token()
@@ -164,4 +178,13 @@ class Parser:
         return FunctionCall(func_name=func_name[1])
 
     def parse(self):
-        return self.function_declaration()
+        token = self.current_token()
+        if token and token[0] == 'INT':
+            # Distinguindo entre declaração de variável e função
+            next_token = self.tokens[self.pos + 1]
+            if next_token[0] == 'ID' and self.tokens[self.pos + 2][0] == 'LPAREN':
+                return self.function_declaration()
+            else:
+                return self.variable_declaration()
+        else:
+            raise Exception(f"Unexpected token {token}")
