@@ -29,6 +29,14 @@ class Print(AST):
     def __init__(self, text):
         self.text = text
 
+class Input:
+    def __init__(self, var_name):
+        self.var_name = var_name
+
+class FunctionCall:
+    def __init__(self, func_name):
+        self.func_name = func_name
+        
 # Definição do Parser
 class Parser:
     def __init__(self, tokens):
@@ -87,27 +95,54 @@ class Parser:
     def print_statement(self):
         self.eat('PRINT')
         self.eat('LPAREN')
-        text = self.current_token()
-        self.eat('STRING')
+    
+        # Verifica se é uma string ou um identificador
+        if self.current_token()[0] == 'STRING':
+            text = self.current_token()
+            self.eat('STRING')
+        elif self.current_token()[0] == 'ID':  # Caso de impressão de uma variável (ID)
+            text = self.current_token()
+            self.eat('ID')
+        else:
+            raise Exception(f'Error parsing input: Expected STRING or ID, got {self.current_token()}')
+    
         self.eat('RPAREN')
         self.eat('END')
+    
         return Print(text=text[1])
+    
+    def input_statement(self):  # Adiciona suporte para Receba()
+        self.eat('INPUT')
+        self.eat('LPAREN')
+        var_name = self.current_token()  # Nome da variável que receberá o input
+        self.eat('ID')
+        self.eat('RPAREN')
+        self.eat('END')
+        return Input(var_name=var_name[1])
 
     def function_declaration(self):
-        return_type = self.current_token()
-        self.eat('INT')
+        return_type = self.current_token()  # Capture o tipo de retorno da função
+        self.eat('INT')  # Come a declaração de tipo 'int'
+    
         func_name = self.current_token()
-        self.eat('MAIN')
-        self.eat('LPAREN')
-        self.eat('RPAREN')
-        self.eat('LBRACE')
+        self.eat('ID')  # Consome o identificador da função
+
+        # if self.current_token()[0] == 'MAIN':
+        #     self.eat('MAIN')  # Come o identificador da função 'main'
+        # else:
+        #     self.eat('ID')  # Para outras funções CUIDADO, SE FOR UTILIZAR OlaTudoBem como main e não criar outras funçoes, retirar esse else
+
+        self.eat('LPAREN')  # Come o '('
+        self.eat('RPAREN')  # Come o ')'
+        self.eat('LBRACE')  # Come a abertura '{'
 
         body = []
+        # Agora, percorre até encontrar a chave de fechamento '}'
         while self.current_token() and self.current_token()[0] != 'RBRACE':
-            if self.current_token()[0] in ('INT', 'FLOAT', 'CHAR'):
-                body.append(self.variable_declaration())
-            elif self.current_token()[0] == 'PRINT':
+            if self.current_token()[0] == 'PRINT':
                 body.append(self.print_statement())
+            elif self.current_token()[0] == 'INPUT':  # Para a função Receba()
+             body.append(self.input_statement())
             elif self.current_token()[0] == 'RETURN':
                 self.eat('RETURN')
                 return_value = self.current_token()
@@ -115,8 +150,18 @@ class Parser:
                 body.append(return_value[1])
                 self.eat('END')
 
-        self.eat('RBRACE')
+        self.eat('RBRACE')  # Aqui espera o '}'
+    
+        # Agora incluímos o return_type ao instanciar FuncDecl
         return FuncDecl(return_type=return_type[1], func_name=func_name[1], body=body)
+
+    def function_call(self):
+        func_name = self.current_token()
+        self.eat('ID')  # Consome o identificador da função
+        self.eat('LPAREN')  # Consome o '('
+        self.eat('RPAREN')  # Consome o ')'
+        self.eat('END')  # Consome o ';'
+        return FunctionCall(func_name=func_name[1])
 
     def parse(self):
         return self.function_declaration()

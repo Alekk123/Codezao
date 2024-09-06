@@ -1,0 +1,7 @@
+int OlaTudoBem() {
+    PoeNaTela("Digite seu nome: ");
+    Receba(nome);
+    PoeNaTela("Olá, ");
+    PoeNaTela(nome);
+    BeijoDoGordo 0;
+}

@@ -1,5 +1,5 @@
 # Importa todas as classes AST do pyc_parser
-from pyc_parser import BinOp, Num, VarDecl, FuncDecl, Print
+from pyc_parser import BinOp, Num, VarDecl, FuncDecl, Print, Input, FunctionCall
 
 class Compiler:
     def __init__(self):
@@ -23,6 +23,10 @@ class Compiler:
             return node.value
         elif isinstance(node, Print):
             return f'print({node.text})'
+        elif isinstance(node, Input):  # Suporte para Receba
+            return f'{node.var_name} = input()'
+        elif isinstance(node, FunctionCall):  # Suporte para chamadas de função
+            return f'{node.func_name}()'
         elif isinstance(node, int):  # Ajuste para reconhecer nós de retorno que são inteiros
             return f"return {node}"  # Retorna corretamente em Python
         elif isinstance(node, list):  # Quando compilar o corpo da função que pode ser uma lista
