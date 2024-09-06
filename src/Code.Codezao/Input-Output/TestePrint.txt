@@ -1,0 +1,4 @@
+SeViraNos30 OlaTudoBem() {
+    PoeNaTela("Testando saída de texto");
+    BeijoDoGordo 0;
+}

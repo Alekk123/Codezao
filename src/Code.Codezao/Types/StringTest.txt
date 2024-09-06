@@ -1,0 +1,7 @@
+SeViraNos30 OlaTudoBem() {
+    PoeNaTela("Digite seu nome: ");
+    Receba(nome);
+    PoeNaTela("Nome: ");
+    PoeNaTela(nome);
+    BeijoDoGordo 0;
+}

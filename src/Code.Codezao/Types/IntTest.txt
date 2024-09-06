@@ -1,0 +1,8 @@
+SeViraNos30 OlaTudoBem() {
+    SeViraNos30 idade;
+    PoeNaTela("Digite sua idade: ");
+    Receba(idade);
+    PoeNaTela("Idade: ");
+    PoeNaTela(idade);
+    BeijoDoGordo 0;
+}

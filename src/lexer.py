@@ -5,6 +5,7 @@ TOKEN_SPECIFICATION = [
     ('INT', r'SeViraNos30'),     # Tipo int
     ('FLOAT', r'QuemQuerDinheiro'), # Tipo float
     ('CHAR', r'char'),           # Tipo char
+    ('BOOLEAN', r'APipaDoVovoNaoSobeMais'),  # Tipo boolean
     ('RETURN', r'BeijoDoGordo'), # Palavra-chave return
     ('PRINT', r'PoeNaTela'),     # Comando PoeNaTela
     ('INPUT', r'Receba'),        # Comando Receba

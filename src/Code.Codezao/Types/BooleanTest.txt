@@ -1,0 +1,8 @@
+SeViraNos30 OlaTudoBem() {
+    APipaDoVovoNaoSobeMais estaChovendo;
+    PoeNaTela("Está chovendo? (True/False): ");
+    Receba(estaChovendo);
+    PoeNaTela("Resposta: ");
+    PoeNaTela(estaChovendo);
+    BeijoDoGordo 0;
+}

@@ -1,0 +1,8 @@
+SeViraNos30 OlaTudoBem() {
+    QuemQuerDinheiro salario;
+    PoeNaTela("Digite seu salário: ");
+    Receba(salario);
+    PoeNaTela("Salário: ");
+    PoeNaTela(salario);
+    BeijoDoGordo 0;
+}
