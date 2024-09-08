@@ -72,12 +72,12 @@ BeijoDoGordo
 
 - [Alexsandro Pasinato](https://github.com/Alekk123)
 - [Gustavo Ferreira](https://github.com/GustavoMCF)
-- [Italo Gabriel]
+- [Italo Gabriel](https://github.com/italogabrielcs)
 - [Pedro Melo](https://github.com/PedroHenriqueMM)
-- [Vinicius Ikeda]
+- [Vinicius Ikeda](https://github.com/ViniciusIkeda)
 
 ## Licença
 
 Este projeto está licenciado sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
 
-Esperamos que este projeto seja útil e contribua para a melhoria da segurança no trânsito. Agradecemos pelo seu interesse e colaboração!
+Esperamos que este projeto seja útil e contribua para a diversão e o aprendizado na programação. Agradecemos pelo seu interesse e colaboração!
