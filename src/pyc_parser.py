@@ -86,12 +86,28 @@ class Parser:
 
     def expr(self):
         """Faz o parsing de uma expressão, lidando com adição e subtração."""
-        node = self.term()
-        while self.current_token() and self.current_token()[0] in ('PLUS', 'MINUS'):
-            token = self.current_token()
-            self.eat(token[0])
-            node = BinOp(left=node, op=token, right=self.term())
+        node = self.term()  # Termo inicial
+        while self.current_token() and self.current_token()[0] in ('OP'):  # Ajuste para aceitar operadores
+            token = self.current_token()  # Token do operador
+            self.eat('OP')  # Consome o operador (+, -, etc.)
+            node = BinOp(left=node, op=token[1], right=self.term())  # Cria a operação binária
         return node
+    
+    def assignment_statement(self):
+        """Faz o parsing de uma atribuição, como resultado = a + b;."""
+        var_name = self.current_token()  # Nome da variável à esquerda
+        self.eat('ID')
+        self.eat('ASSIGN')  # O operador de atribuição '='
+    
+        # Agora, vamos processar a expressão (que pode incluir operações)
+        expr = self.expr()  # Atribui o resultado da expressão à direita
+    
+        # Consumimos o ponto e vírgula ao final
+        self.eat('END')
+    
+        # Retorna um nó de operação binária (BinOp) com a variável à esquerda
+        return BinOp(left=var_name[1], op='=', right=expr)
+
 
     # Parsing de declaração de variável
     def variable_declaration(self):
@@ -184,6 +200,8 @@ class Parser:
                 body.append(self.print_statement())
             elif self.current_token()[0] == 'INPUT':
                 body.append(self.input_statement())
+            elif self.current_token()[0] == 'ID':
+                body.append(self.assignment_statement())  # Aqui processamos as atribuições
             elif self.current_token()[0] == 'RETURN':
                 body.append(self.return_statement())
             else:

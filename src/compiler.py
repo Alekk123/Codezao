@@ -13,7 +13,10 @@ class Compiler:
         elif isinstance(node, VarDecl):
             return self.compile_variable(node)
         elif isinstance(node, BinOp):
-            return self.compile_binop(node)
+            if node.op == '=':  # Trata a atribuição separadamente
+                return self.compile_assignment(node)
+            else:
+                return self.compile_binop(node)
         elif isinstance(node, Num):
             return self.compile_num(node)
         elif isinstance(node, Print):
@@ -22,6 +25,8 @@ class Compiler:
             return self.compile_input(node)
         elif isinstance(node, FunctionCall):
             return self.compile_function_call(node)
+        elif isinstance(node, str):  # Identificadores (variáveis como 'a', 'b', etc.)
+            return node  # Retorna o nome da variável diretamente
         elif isinstance(node, int):
             return self.compile_return(node)
         elif isinstance(node, list):
@@ -55,10 +60,41 @@ class Compiler:
             return f"{node.var_name} = {value}"
 
     def compile_binop(self, node):
-        """Compila operações binárias."""
+        """Compila operações binárias com verificações de segurança e depuração detalhada."""
+        # Verifica se os operadores e operandos existem
+        if node.left is None or node.right is None or node.op is None:
+            raise Exception(f"Erro: Operadores ou operandos inválidos. Node.left: {node.left}, Node.op: {node.op}, Node.right: {node.right}")
+
+        # Exibe informações de depuração sobre o nó de operação binária
+        print(f"Compilando BinOp: {node.left} {node.op} {node.right}")
+    
+        # Compila os operandos esquerdo e direito
         left = self.compile(node.left)
         right = self.compile(node.right)
-        return f"{left} {node.op} {right}"
+    
+        # Verifica se os operandos são válidos
+        if left is None:
+            raise Exception(f"Erro: Operando esquerdo é None. Node.left: {node.left}")
+        if right is None:
+            raise Exception(f"Erro: Operando direito é None. Node.right: {node.right}")
+    
+        # Verifica se o operador é válido
+        operator = node.op 
+        if operator not in ['+', '-', '*', '/']:
+            raise Exception(f"Operador binário inválido: {operator}")
+    
+        # Exibe os operandos compilados para depuração
+        print(f"Operando esquerdo compilado: {left}")
+        print(f"Operando direito compilado: {right}")
+    
+        # Retorna a operação binária compilada no formato de Python
+        return f"{left} {operator} {right}"
+    
+    def compile_assignment(self, node):
+        """Compila uma atribuição (assignment)."""
+        left = node.left
+        right = self.compile(node.right)  # Expressão que está sendo atribuída
+        return f"{left} = {right}"
 
     def compile_num(self, node):
         """Compila números."""

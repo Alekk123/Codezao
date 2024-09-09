@@ -17,7 +17,7 @@ def read_file(file_name):
         with open(file_name, "r") as file:
             code = file.read()
         print("Código lido do arquivo:")
-        print(code)
+        #print(code)
         return code
     except Exception as e:
         print(f"Erro ao ler o arquivo: {e}")
@@ -35,7 +35,7 @@ def process_tokens(code):
     """
     try:
         tokens = tokenize(code)
-        print("Tokens:", tokens)
+        #print("Tokens:", tokens)
         return tokens
     except Exception as e:
         print(f"Erro ao tokenizar o código: {e}")
