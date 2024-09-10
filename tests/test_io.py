@@ -23,3 +23,11 @@ class TestIO(unittest.TestCase):
         inputs = ['30']  # Simula a entrada da idade
         result = execute_code_from_file(code, inputs)
         self.assertIn("Idade: 30", result)
+
+    def test_print_with_accents(self):
+        code = '''SeViraNos30 OlaTudoBem() {
+            PoeNaTela("Olá, tudo bem? Vamos adicionar números.");
+            BeijoDoGordo 0;
+        }'''
+        result = execute_code_from_file(code, [])
+        assert "Olá, tudo bem? Vamos adicionar números." in result

@@ -14,7 +14,7 @@ def read_file(file_name):
         str: Código lido do arquivo.
     """
     try:
-        with open(file_name, "r") as file:
+        with open(file_name, "r", encoding="utf-8") as file:
             code = file.read()
         print("Código lido do arquivo:")
         #print(code)

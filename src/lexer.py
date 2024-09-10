@@ -12,7 +12,7 @@ TOKEN_SPECIFICATION = [
     ('NUMBER', r'\d+(\.\d*)?'),  # Números inteiros e de ponto flutuante
     ('ASSIGN', r'='),            # Operador de atribuição
     ('END', r';'),               # Fim de instrução
-    ('ID', r'[A-Za-z_]\w*'),     # Identificadores
+    ('ID', r'[A-Za-z_áéíóúçÁÉÍÓÚÇ]\w*'),  # Identificadores com suporte a caracteres acentuados
     ('OP', r'[+\-*/]'),          # Operadores aritméticos
     ('STRING', r'\".*?\"'),      # String
     ('LPAREN', r'\('),           # Parênteses de abertura

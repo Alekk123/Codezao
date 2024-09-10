@@ -1,12 +1,21 @@
 SeViraNos30 OlaTudoBem() {
     SeViraNos30 a;
     SeViraNos30 b;
-    SeViraNos30 resultado;
-    PoeNaTela("Digite dois números para adição: ");
+    SeViraNos30 resultado1;
+    SeViraNos30 resultado2;
+    SeViraNos30 resultado3;
+    SeViraNos30 resultado4;
+    PoeNaTela("Digite dois números para as Operações: ");
     Receba(a);
     Receba(b);
-    resultado = a / b;
-    PoeNaTela("Resultado da adição: ");
-    PoeNaTela(resultado);
+    resultado1 = a + b;
+    resultado2 = a - b;
+    resultado3 = a * b;
+    resultado4 = a / b;
+    PoeNaTela("Resultado das Operações: ");
+    PoeNaTela(resultado1);
+    PoeNaTela(resultado2);
+    PoeNaTela(resultado3);
+    PoeNaTela(resultado4);
     BeijoDoGordo 0;
 }
