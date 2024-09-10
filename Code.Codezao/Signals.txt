@@ -5,7 +5,7 @@ SeViraNos30 OlaTudoBem() {
     PoeNaTela("Digite dois números para adição: ");
     Receba(a);
     Receba(b);
-    resultado = a + b;
+    resultado = a / b;
     PoeNaTela("Resultado da adição: ");
     PoeNaTela(resultado);
     BeijoDoGordo 0;

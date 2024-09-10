@@ -66,7 +66,7 @@ class Compiler:
             raise Exception(f"Erro: Operadores ou operandos inválidos. Node.left: {node.left}, Node.op: {node.op}, Node.right: {node.right}")
 
         # Exibe informações de depuração sobre o nó de operação binária
-        print(f"Compilando BinOp: {node.left} {node.op} {node.right}")
+        #print(f"Compilando BinOp: {node.left} {node.op} {node.right}")
     
         # Compila os operandos esquerdo e direito
         left = self.compile(node.left)
@@ -84,8 +84,8 @@ class Compiler:
             raise Exception(f"Operador binário inválido: {operator}")
     
         # Exibe os operandos compilados para depuração
-        print(f"Operando esquerdo compilado: {left}")
-        print(f"Operando direito compilado: {right}")
+        #print(f"Operando esquerdo compilado: {left}")
+        #print(f"Operando direito compilado: {right}")
     
         # Retorna a operação binária compilada no formato de Python
         return f"{left} {operator} {right}"
