@@ -85,28 +85,54 @@ class Parser:
         return node
 
     def expr(self):
-        """Faz o parsing de uma expressão, lidando com adição e subtração."""
-        node = self.term()  # Termo inicial
-        while self.current_token() and self.current_token()[0] in ('OP'):  # Ajuste para aceitar operadores
-            token = self.current_token()  # Token do operador
-            self.eat('OP')  # Consome o operador (+, -, etc.)
-            node = BinOp(left=node, op=token[1], right=self.term())  # Cria a operação binária
+        """Faz o parsing de uma expressão aritmética usando operadores aritméticos."""
+        node = self.term()  # Inicializa com um termo para adição e subtração
+
+        # Processa operadores aritméticos
+        while self.current_token() and self.current_token()[0] == 'OP':
+            token = self.current_token()
+            self.eat('OP')
+            node = BinOp(left=node, op=token[1], right=self.term())
+
+        return node
+
+    
+    def comparison_expr(self):
+        """Faz o parsing de uma expressão de comparação usando operadores como <, >, <=, >=, ==, !=."""
+        node = self.logical_expr()  # Baseia-se em uma expressão lógica para compor a comparação
+
+        # Processa operadores de comparação
+        while self.current_token() and self.current_token()[0] == 'COMPARISON_OP':
+            token = self.current_token()
+            self.eat('COMPARISON_OP')
+            node = BinOp(left=node, op=token[1], right=self.logical_expr())
+
+        return node
+    
+    def logical_expr(self):
+        """Faz o parsing de uma expressão lógica usando operadores lógicos como && e ||."""
+        node = self.expr()  # Começa a expressão lógica com uma expressão aritmética ou comparativa
+
+        # Processa operadores lógicos
+        while self.current_token() and self.current_token()[0] == 'LOGICAL_OP':
+            token = self.current_token()
+            self.eat('LOGICAL_OP')
+            node = BinOp(left=node, op=token[1], right=self.expr())
+
         return node
     
     def assignment_statement(self):
-        """Faz o parsing de uma atribuição, como resultado = a + b;."""
-        var_name = self.current_token()  # Nome da variável à esquerda
+        """Processa uma declaração de atribuição."""
+        var_name = self.current_token()
         self.eat('ID')
-        self.eat('ASSIGN')  # O operador de atribuição '='
-    
-        # Agora, vamos processar a expressão (que pode incluir operações)
-        expr = self.expr()  # Atribui o resultado da expressão à direita
-    
-        # Consumimos o ponto e vírgula ao final
+        self.eat('ASSIGN')
+
+        # Processa a expressão do lado direito da atribuição
+        expr = self.comparison_expr()  # Chama comparison_expr para avaliar completamente
+
         self.eat('END')
-    
-        # Retorna um nó de operação binária (BinOp) com a variável à esquerda
         return BinOp(left=var_name[1], op='=', right=expr)
+
 
 
     # Parsing de declaração de variável

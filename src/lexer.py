@@ -14,6 +14,8 @@ TOKEN_SPECIFICATION = [
     ('END', r';'),               # Fim de instrução
     ('ID', r'[A-Za-z_áéíóúçÁÉÍÓÚÇ]\w*'),  # Identificadores com suporte a caracteres acentuados
     ('OP', r'[+\-*/]'),          # Operadores aritméticos
+    ('LOGICAL_OP', r'&&|\|\|'),  # Operadores lógicos AND e OR
+    ('COMPARISON_OP', r'==|!=|<=|>=|<|>'), # Operadores de comparação
     ('STRING', r'\".*?\"'),      # String
     ('LPAREN', r'\('),           # Parênteses de abertura
     ('RPAREN', r'\)'),           # Parênteses de fechamento

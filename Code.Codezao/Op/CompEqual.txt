@@ -1,0 +1,20 @@
+SeViraNos30 OlaTudoBem() {
+    SeViraNos30 a;
+    SeViraNos30 b;
+    APipaDoVovoNaoSobeMais resultado;
+    
+    PoeNaTela("Digite um número para a: ");
+    Receba(a);
+    PoeNaTela("Digite um número para b: ");
+    Receba(b);
+    
+    resultado = (a > b) && (a == 10);
+    PoeNaTela("Resultado de (a > b) && (a == 10): ");
+    PoeNaTela(resultado);
+    
+    resultado = (a < b) || (a == b);
+    PoeNaTela("Resultado de (a < b) || (a == b): ");
+    PoeNaTela(resultado);
+    
+    BeijoDoGordo 0;
+}

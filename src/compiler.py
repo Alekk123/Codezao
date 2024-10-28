@@ -80,15 +80,18 @@ class Compiler:
     
         # Verifica se o operador é válido
         operator = node.op 
-        if operator not in ['+', '-', '*', '/']:
+        if operator not in ['+', '-', '*', '/', '&&', '||', '==', '!=', '<', '>', '<=', '>=']:
             raise Exception(f"Operador binário inválido: {operator}")
+        
+        operator_map = {'&&': 'and', '||': 'or', '==': '==', '!=': '!=', '<': '<', '>': '>', '<=': '<=', '>=': '>='}
+        operator_python = operator_map.get(operator, operator)
     
         # Exibe os operandos compilados para depuração
         #print(f"Operando esquerdo compilado: {left}")
         #print(f"Operando direito compilado: {right}")
     
         # Retorna a operação binária compilada no formato de Python
-        return f"{left} {operator} {right}"
+        return f"{left} {operator_python} {right}"
     
     def compile_assignment(self, node):
         """Compila uma atribuição (assignment)."""
