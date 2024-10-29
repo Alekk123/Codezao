@@ -10,7 +10,9 @@ TOKEN_SPECIFICATION = [
     ('PRINT', r'PoeNaTela'),     # Comando PoeNaTela
     ('INPUT', r'Receba'),        # Comando Receba
     ('NUMBER', r'\d+(\.\d*)?'),  # Números inteiros e de ponto flutuante
-    
+    ('IF', r'EhUmaCiladaBino'),     # if
+    ('ELSE_IF', r'VoceEstaCertoDisso'),  # else if
+    ('ELSE', r'Errrou'),            # else
     ('END', r';'),               # Fim de instrução
     ('ID', r'[A-Za-z_áéíóúçÁÉÍÓÚÇ]\w*'),  # Identificadores com suporte a caracteres acentuados
     ('OP', r'[+\-*/]'),          # Operadores aritméticos

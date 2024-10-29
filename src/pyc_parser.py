@@ -51,6 +51,12 @@ class FunctionCall:
     def __init__(self, func_name):
         """Chamada de função na AST."""
         self.func_name = func_name
+        
+class IfNode(AST):
+    def __init__(self, conditionals):
+        """Inicializa um nó de condicional com todas as condições (if, elif, else). """
+        self.conditionals = conditionals
+
 
 # Definição do Parser
 class Parser:
@@ -75,6 +81,43 @@ class Parser:
         if self.pos + 1 < len(self.tokens):
             return self.tokens[self.pos + 1]
         return None
+    
+     # Função principal para parsing de condicional
+    def parse_conditional_statement(self):
+        """Processa declarações condicionais (if, else if, else) na linguagem Codezão."""
+        conditionals = []
+
+        # Verificar 'EhUmaCiladaBino' para iniciar o bloco if
+        if self.current_token() and self.current_token()[0] == 'IF':
+            self.eat('IF')
+            self.eat('LPAREN')
+            condition = self.parse_expression()  # Avalia a expressão da condição if
+            self.eat('RPAREN')
+            self.eat('LBRACE')
+            if_body = self.parse_body()  # Processa o corpo do bloco if
+            self.eat('RBRACE')
+            conditionals.append(('if', condition, if_body))
+
+            # Verificar a existência de blocos else if (VoceEstaCertoDisso)
+            while self.current_token() and self.current_token()[0] == 'ELSE_IF':
+                self.eat('ELSE_IF')
+                self.eat('LPAREN')
+                condition = self.parse_expression()  # Avalia a expressão da condição else if
+                self.eat('RPAREN')
+                self.eat('LBRACE')
+                elif_body = self.parse_body()  # Processa o corpo do bloco else if
+                self.eat('RBRACE')
+                conditionals.append(('elif', condition, elif_body))
+
+            # Verificar a existência de bloco else (Errrou)
+            if self.current_token() and self.current_token()[0] == 'ELSE':
+                self.eat('ELSE')
+                self.eat('LBRACE')
+                else_body = self.parse_body()  # Processa o corpo do bloco else
+                self.eat('RBRACE')
+                conditionals.append(('else', else_body))
+
+        return IfNode(conditionals)  # Retorna o nó if contendo todos os blocos
     
     # Parsing de expressões e termos
     def parse_expression(self):
@@ -264,6 +307,8 @@ class Parser:
                 body.append(self.print_statement())
             elif self.current_token()[0] == 'INPUT':
                 body.append(self.input_statement())
+            elif self.current_token()[0] == 'IF':  # Suporte para condicional
+                body.append(self.parse_conditional_statement())
             elif self.current_token()[0] == 'ID':
                 body.append(self.assignment_statement())  # Aqui processamos as atribuições
             elif self.current_token()[0] == 'RETURN':
@@ -273,6 +318,33 @@ class Parser:
         
         self.eat('RBRACE')  # Consome '}'
         return FuncDecl(return_type=return_type[1], func_name=func_name[1], body=body)
+    
+    # Função para processar o corpo de um bloco de código (por exemplo, dentro de condicionais)
+    def parse_body(self):
+        """Processa o corpo de um bloco, capturando todas as instruções dentro de '{' e '}'."""
+        body = []
+        while self.current_token() and self.current_token()[0] != 'RBRACE':
+            if self.current_token()[0] == 'INT':
+                body.append(self.variable_declaration())
+            elif self.current_token()[0] == 'FLOAT':
+                body.append(self.variable_declaration())
+            elif self.current_token()[0] == 'BOOLEAN':
+                body.append(self.variable_declaration())
+            elif self.current_token()[0] == 'CHAR':
+                body.append(self.variable_declaration())
+            elif self.current_token()[0] == 'PRINT':
+                body.append(self.print_statement())
+            elif self.current_token()[0] == 'INPUT':
+                body.append(self.input_statement())
+            elif self.current_token()[0] == 'IF':
+                body.append(self.parse_conditional_statement())
+            elif self.current_token()[0] == 'ID':
+                body.append(self.assignment_statement())
+            elif self.current_token()[0] == 'RETURN':
+                body.append(self.return_statement())
+            else:
+                raise Exception(f"Unexpected token {self.current_token()} in body")
+        return body
 
     # Parsing da instrução de retorno
     def return_statement(self):

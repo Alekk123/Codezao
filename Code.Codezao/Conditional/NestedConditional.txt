@@ -1,0 +1,16 @@
+SeViraNos30 OlaTudoBem() {
+    SeViraNos30 valor;
+    PoeNaTela("Digite um valor para teste de condicionais: ");
+    Receba(valor);
+
+    EhUmaCiladaBino (a > 10) {
+        EhUmaCiladaBino (b < 5) {
+            PoeNaTela("A > 10 e B < 5");
+        } Errrou {
+            PoeNaTela("A > 10 e B >= 5");
+        }
+    } Errrou {
+        PoeNaTela("A <= 10");   
+    }
+    BeijoDoGordo 0;
+}

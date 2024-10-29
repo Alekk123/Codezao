@@ -1,5 +1,5 @@
 # Importa todas as classes AST do pyc_parser
-from pyc_parser import BinOp, Num, VarDecl, FuncDecl, Print, Input, FunctionCall
+from pyc_parser import BinOp, IfNode, Num, VarDecl, FuncDecl, Print, Input, FunctionCall
 
 class Compiler:
     def __init__(self):
@@ -25,6 +25,8 @@ class Compiler:
             return self.compile_input(node)
         elif isinstance(node, FunctionCall):
             return self.compile_function_call(node)
+        elif isinstance(node, IfNode):  # Suporte para condicional
+            return self.compile_if(node)
         elif isinstance(node, str):  # Identificadores (variáveis como 'a', 'b', etc.)
             return node  # Retorna o nome da variável diretamente
         elif isinstance(node, int):
@@ -58,6 +60,54 @@ class Compiler:
         elif node.var_type == 'Maoee':  # Suporte para char (Maoee)
             value = node.value if node.value else "' '"
             return f"{node.var_name} = {value}"
+        
+    def compile_if(self, node, indent_level=0):
+        """Compila instruções condicionais if, elif, else com controle de indentação adequado para nested conditions."""
+        output = []
+        base_indent = '    ' * indent_level  # Nível de indentação para o 'if'
+        elif_else_indent = '    ' * (indent_level + 1)  # Nível de indentação para o 'elif' e 'else'
+        inner_indent = '    ' * (indent_level + 2)  # Nível de indentação para o conteúdo interno dos blocos
+
+        nested_level = 0  # Controle do nível de indentação para if aninhados
+
+        for conditional in node.conditionals:
+            if conditional[0] == 'if':
+                current_indent = base_indent if nested_level == 0 else '    ' * (indent_level + nested_level)
+                output.append(f"{current_indent}if {self.compile(conditional[1])}:")
+                
+                for stmt in conditional[2]:  # Bloco interno do 'if'
+                    compiled_stmt = self.compile(stmt)
+                    if compiled_stmt:
+                        output.append(f"{current_indent}{'    ' * 2}{compiled_stmt}")
+
+                nested_level += 1  # Aumenta o nível de indentação para if aninhado
+
+            elif conditional[0] == 'elif':
+                output.append(f"{elif_else_indent}elif {self.compile(conditional[1])}:")
+                
+                for stmt in conditional[2]:  # Bloco interno do 'elif'
+                    compiled_stmt = self.compile(stmt)
+                    if compiled_stmt:
+                        output.append(f"{inner_indent}{compiled_stmt}")
+
+            elif conditional[0] == 'else':
+                current_else_indent = base_indent if nested_level == 0 else elif_else_indent
+                output.append(f"{current_else_indent}else:")
+                
+                for stmt in conditional[1]:  # Bloco interno do 'else'
+                    compiled_stmt = self.compile(stmt)
+                    if compiled_stmt:
+                        output.append(f"{inner_indent}{compiled_stmt}")
+                
+                if nested_level > 0:
+                    nested_level -= 1  # Diminui o nível ao sair do bloco aninhado
+
+        compiled_code = "\n".join(output)
+        
+        # Log para verificar a formatação e a lógica
+        print("Código condicional compilado:\n", compiled_code)
+        
+        return compiled_code
 
     def compile_binop(self, node):
         """Compila operações binárias com verificações de segurança e depuração detalhada."""
