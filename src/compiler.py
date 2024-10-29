@@ -1,5 +1,5 @@
 # Importa todas as classes AST do pyc_parser
-from pyc_parser import BinOp, BreakNode, IfNode, Num, VarDecl, FuncDecl, Print, Input, FunctionCall, WhileNode
+from pyc_parser import BinOp, BreakNode, ForNode, IfNode, Num, VarDecl, FuncDecl, Print, Input, FunctionCall, WhileNode
 
 class Compiler:
     def __init__(self):
@@ -29,6 +29,8 @@ class Compiler:
             return self.compile_if(node)
         elif isinstance(node, WhileNode):  # Suporte para loop While
             return self.compile_while(node)
+        elif isinstance(node, ForNode):  # Suporte para loop for
+            return self.compile_for(node)
         elif isinstance(node, BreakNode):
             return self.compile_break()
         elif isinstance(node, str):  # Identificadores (variáveis como 'a', 'b', etc.)
@@ -133,6 +135,35 @@ class Compiler:
         
         # Log para verificar a formatação e a lógica
         print("Código `while` compilado:\n", compiled_code)
+        
+        return compiled_code
+    
+    def compile_for(self, node, indent_level=0):
+        """Compila o laço `VaiQueEhTua` como um loop `while` em Python."""
+        output = []
+        
+        # Inicialização fora do bloco `while`, sem indentação extra
+        output.append(f"{self.compile(node.init)}")
+
+        # Cabeçalho do `while` com uma leve indentação extra
+        base_indent = '    ' * (indent_level + 1)  # Adiciona uma indentação extra
+        output.append(f"{base_indent}while {self.compile(node.condition)}:")
+
+        # Corpo do `while` com uma indentação adicional
+        inner_indent = '    ' * (indent_level + 2)  # Mantém o corpo ainda mais dentro do bloco
+        for stmt in node.body:
+            compiled_stmt = self.compile(stmt)
+            if compiled_stmt:
+                output.append(f"{inner_indent}{compiled_stmt}")
+
+        # Incremento ao final do bloco `while`
+        output.append(f"{inner_indent}{self.compile(node.increment)}")
+
+        # Gera o código compilado
+        compiled_code = "\n".join(output)
+        
+        # Log para verificação
+        print("Código `for` compilado como `while`:\n", compiled_code)
         
         return compiled_code
 

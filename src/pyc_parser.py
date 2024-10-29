@@ -66,6 +66,12 @@ class BreakNode(AST):
     """Representa uma instrução de interrupção de laço (break) na AST."""
     pass
 
+class ForNode(AST):
+    def __init__(self, init, condition, increment, body):
+        self.init = init
+        self.condition = condition
+        self.increment = increment
+        self.body = body
 
 # Definição do Parser
 class Parser:
@@ -73,6 +79,7 @@ class Parser:
         """Inicializa o Parser com uma lista de tokens."""
         self.tokens = tokens
         self.pos = 0
+        self.in_for_loop = False  # Controle para o modo `for`
 
     def current_token(self):
         """Retorna o token atual."""
@@ -142,6 +149,42 @@ class Parser:
         self.eat('RBRACE')  # Fecha o bloco do `while`
         return WhileNode(condition, body)
     
+    def parse_for_statement(self):
+        """Processa o laço `VaiQueEhTua` e gera o nó ForNode na AST."""
+        print("[DEBUG] Iniciando parsing do `for` (VaiQueEhTua)")
+        self.eat('FOR')
+        self.eat('LPAREN')
+        
+        # Ativa o modo `for`
+        self.in_for_loop = True
+
+        print("[DEBUG] Processando inicialização do `for`...")
+        init = self.assignment_statement()
+        print("[DEBUG] Inicialização do `for`:", init)
+
+        print("[DEBUG] Processando condição do `for`...")
+        condition = self.parse_expression()
+        print("[DEBUG] Condição do `for`:", condition)
+
+        # Consome `END` se presente após a condição no cabeçalho do `for`
+        if self.current_token() and self.current_token()[0] == 'END':
+            self.eat('END')
+
+        print("[DEBUG] Processando incremento do `for`...")
+        increment = self.assignment_statement()
+        print("[DEBUG] Incremento do `for`:", increment)
+
+        self.in_for_loop = False
+        self.eat('RPAREN')  # Confirma fechamento do cabeçalho do `for`
+        
+        print("[DEBUG] Processando corpo do `for`...")
+        self.eat('LBRACE')
+        body = self.parse_body()
+        self.eat('RBRACE')
+        
+        print("[DEBUG] Finalizando parsing do `for` com corpo:", body)
+        return ForNode(init, condition, increment, body)
+    
     # Parsing de expressões e termos
     def parse_expression(self):
         """Processa expressões gerais, incluindo comparações e lógicas."""
@@ -199,7 +242,14 @@ class Parser:
     def parse_factor(self):
         """Processa números, variáveis e expressões entre parênteses."""
         token = self.current_token()
-        if token[0] == 'NUMBER':
+        print("[DEBUG] Parsing factor, current token:", token)  # Log para diagnóstico
+
+        if token[0] == 'END' and self.in_for_loop:
+            # Ignora `END` apenas dentro do contexto do `for`
+            self.eat('END')
+            print("[DEBUG] Ignorando `END` no contexto do `for`")  # Log para acompanhar a ignorância do `END`
+            return None  # Retorna None para seguir o parsing do `for`
+        elif token[0] == 'NUMBER':
             self.eat('NUMBER')
             return Num(token)
         elif token[0] == 'ID':
@@ -217,7 +267,7 @@ class Parser:
                 raise Exception("Erro: Parêntese de fechamento ')' esperado.")
             return node
         else:
-            raise Exception('Erro de sintaxe no fator')
+            raise Exception(f'Erro de sintaxe no fator, token inesperado: {token}')  # Log do erro com token específico
 
     def assignment_statement(self):
         """Processa uma declaração de atribuição, diferenciando corretamente `=` e `==`."""
@@ -229,12 +279,17 @@ class Parser:
             self.eat('ASSIGN')  # Consome `=`, pois é uma atribuição
             expr = self.parse_expression()  # Processa a expressão completa no lado direito
 
-            # Exige `END` para finalizar a atribuição
-            if self.current_token() and self.current_token()[0] == 'END':
-                self.eat('END')
-                return BinOp(left=var_name[1], op='=', right=expr)
-            else:
-                raise Exception(f"Erro: ';' esperado no final da atribuição, mas encontrado: {self.current_token()}")
+            # Controle para ignorar o `END` no contexto do `for`
+            if self.in_for_loop and self.current_token() and self.current_token()[0] == 'END':
+                self.eat('END')  # Ignora o `END` intermediário dentro do `for`
+            elif not self.in_for_loop:
+                # Exige `END` fora do contexto do `for`
+                if self.current_token() and self.current_token()[0] == 'END':
+                    self.eat('END')
+                else:
+                    raise Exception(f"Erro: ';' esperado no final da atribuição, mas encontrado: {self.current_token()}")
+            
+            return BinOp(left=var_name[1], op='=', right=expr)
 
         else:
             raise Exception("Erro de sintaxe: Esperado operador `=` após o identificador.")
@@ -334,6 +389,8 @@ class Parser:
                 body.append(self.parse_conditional_statement())
             elif self.current_token()[0] == 'WHILE':  # Adiciona o suporte para `RodaARoda`
                 body.append(self.parse_while_statement())
+            elif self.current_token()[0] == 'FOR':  # Suporte para o laço for
+                body.append(self.parse_for_statement())
             elif self.current_token()[0] == 'ID':
                 body.append(self.assignment_statement())  # Aqui processamos as atribuições
             elif self.current_token()[0] == 'RETURN':
@@ -369,6 +426,8 @@ class Parser:
                 body.append(self.parse_conditional_statement())
             elif self.current_token()[0] == 'WHILE': 
                 body.append(self.parse_while_statement())
+            elif self.current_token()[0] == 'FOR':  # Para `VaiQueEhTua`
+                body.append(self.parse_for_statement())
             elif self.current_token()[0] == 'ID':
                 body.append(self.assignment_statement())
             elif self.current_token()[0] == 'RETURN':

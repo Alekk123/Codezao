@@ -56,3 +56,31 @@ class TestWhileLoop(unittest.TestCase):
         assert "Contador em: 0" in result
         assert "Contador em: 1" in result
         assert "Contador em: 2" not in result  # O loop deve parar antes de 2
+    
+    def test_for_loop(self):
+        code = '''SeViraNos30 OlaTudoBem() {
+            SeViraNos30 contador;
+            contador = 0;
+
+            VaiQueEhTua (contador = 0 ; contador < 5 ; contador = contador + 1) {
+                PoeNaTela("Contador em: ");
+                PoeNaTela(contador);
+            }
+
+            BeijoDoGordo 0;
+        }'''
+        result = execute_code_from_file(code, inputs=[])
+        expected_output = [
+            "Contador em:", 
+            "0", 
+            "Contador em:", 
+            "1", 
+            "Contador em:", 
+            "2", 
+            "Contador em:", 
+            "3", 
+            "Contador em:", 
+            "4"
+        ]
+        for line in expected_output:
+            self.assertIn(line, result)
