@@ -14,6 +14,7 @@ TOKEN_SPECIFICATION = [
     ('ELSE_IF', r'VoceEstaCertoDisso'),  # else if
     ('ELSE', r'Errrou'),            # else
     ('WHILE', r'RodaARoda'),     # Loop while
+    ('BREAK', r'CortaPraMim'),  # Representa uma interrupção de laço
     ('END', r';'),               # Fim de instrução
     ('ID', r'[A-Za-z_áéíóúçÁÉÍÓÚÇ]\w*'),  # Identificadores com suporte a caracteres acentuados
     ('OP', r'[+\-*/]'),          # Operadores aritméticos

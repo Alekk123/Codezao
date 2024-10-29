@@ -62,6 +62,10 @@ class WhileNode:
         self.condition = condition
         self.body = body
 
+class BreakNode(AST):
+    """Representa uma instrução de interrupção de laço (break) na AST."""
+    pass
+
 
 # Definição do Parser
 class Parser:
@@ -345,7 +349,11 @@ class Parser:
         """Processa o corpo de um bloco, capturando todas as instruções dentro de '{' e '}'."""
         body = []
         while self.current_token() and self.current_token()[0] != 'RBRACE':
-            if self.current_token()[0] == 'INT':
+            if self.current_token()[0] == 'BREAK':  # Para `CortaPraMim`
+                self.eat('BREAK')
+                self.eat('END')
+                body.append(BreakNode())
+            elif self.current_token()[0] == 'INT':
                 body.append(self.variable_declaration())
             elif self.current_token()[0] == 'FLOAT':
                 body.append(self.variable_declaration())

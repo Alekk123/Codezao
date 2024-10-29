@@ -1,5 +1,5 @@
 # Importa todas as classes AST do pyc_parser
-from pyc_parser import BinOp, IfNode, Num, VarDecl, FuncDecl, Print, Input, FunctionCall, WhileNode
+from pyc_parser import BinOp, BreakNode, IfNode, Num, VarDecl, FuncDecl, Print, Input, FunctionCall, WhileNode
 
 class Compiler:
     def __init__(self):
@@ -29,6 +29,8 @@ class Compiler:
             return self.compile_if(node)
         elif isinstance(node, WhileNode):  # Suporte para loop While
             return self.compile_while(node)
+        elif isinstance(node, BreakNode):
+            return self.compile_break()
         elif isinstance(node, str):  # Identificadores (variáveis como 'a', 'b', etc.)
             return node  # Retorna o nome da variável diretamente
         elif isinstance(node, int):
@@ -134,7 +136,9 @@ class Compiler:
         
         return compiled_code
 
-
+    def compile_break(self):
+        """Compila a instrução `CortaPraMim` como `break` em Python."""
+        return "break"
 
     def compile_binop(self, node):
         """Compila operações binárias com verificações de segurança e depuração detalhada."""

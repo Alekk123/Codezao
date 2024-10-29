@@ -1,0 +1,17 @@
+SeViraNos30 OlaTudoBem() {
+    SeViraNos30 contador;
+    contador = 0;
+
+    RodaARoda (contador < 10) {
+        PoeNaTela("Contador em: ");
+        PoeNaTela(contador);
+        contador = contador + 1;
+
+        EhUmaCiladaBino (contador == 5) {
+            PoeNaTela("Interrompendo o loop.");
+            CortaPraMim;
+        }
+    }
+
+    BeijoDoGordo 0;
+}
