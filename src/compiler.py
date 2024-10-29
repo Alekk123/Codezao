@@ -1,5 +1,5 @@
 # Importa todas as classes AST do pyc_parser
-from pyc_parser import BinOp, IfNode, Num, VarDecl, FuncDecl, Print, Input, FunctionCall
+from pyc_parser import BinOp, IfNode, Num, VarDecl, FuncDecl, Print, Input, FunctionCall, WhileNode
 
 class Compiler:
     def __init__(self):
@@ -27,6 +27,8 @@ class Compiler:
             return self.compile_function_call(node)
         elif isinstance(node, IfNode):  # Suporte para condicional
             return self.compile_if(node)
+        elif isinstance(node, WhileNode):  # Suporte para loop While
+            return self.compile_while(node)
         elif isinstance(node, str):  # Identificadores (variáveis como 'a', 'b', etc.)
             return node  # Retorna o nome da variável diretamente
         elif isinstance(node, int):
@@ -108,6 +110,31 @@ class Compiler:
         print("Código condicional compilado:\n", compiled_code)
         
         return compiled_code
+    
+    def compile_while(self, node, indent_level=0):
+        """Compila o loop `RodaARoda` em código Python com a indentação adequada."""
+        output = []
+        indent = '    ' * indent_level  # Define o nível de indentação para o `while`
+
+        # Adiciona o cabeçalho do loop com a condição
+        output.append(f"{indent}while {self.compile(node.condition)}:")
+
+        # Processa o corpo do loop com um nível adicional de indentação e dois espaços extras
+        inner_indent = '    ' * (indent_level + 1) + '  '  # Inclui dois espaços extras
+
+        for stmt in node.body:
+            compiled_stmt = self.compile(stmt)  # Compila cada instrução do corpo
+            if compiled_stmt:
+                output.append(f"{inner_indent}{compiled_stmt}")
+
+        compiled_code = "\n".join(output)
+        
+        # Log para verificar a formatação e a lógica
+        print("Código `while` compilado:\n", compiled_code)
+        
+        return compiled_code
+
+
 
     def compile_binop(self, node):
         """Compila operações binárias com verificações de segurança e depuração detalhada."""

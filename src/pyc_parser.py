@@ -57,6 +57,11 @@ class IfNode(AST):
         """Inicializa um nó de condicional com todas as condições (if, elif, else). """
         self.conditionals = conditionals
 
+class WhileNode:
+    def __init__(self, condition, body):
+        self.condition = condition
+        self.body = body
+
 
 # Definição do Parser
 class Parser:
@@ -118,6 +123,20 @@ class Parser:
                 conditionals.append(('else', else_body))
 
         return IfNode(conditionals)  # Retorna o nó if contendo todos os blocos
+    
+    def parse_while_statement(self):
+        """Processa o laço `RodaARoda` e gera o nó WhileNode na AST."""
+        self.eat('WHILE')
+        self.eat('LPAREN')
+        condition = self.parse_expression()  # Analisa a condição
+        self.eat('RPAREN')
+        self.eat('LBRACE')
+        
+        # Captura o corpo do `while`
+        body = self.parse_body()
+        
+        self.eat('RBRACE')  # Fecha o bloco do `while`
+        return WhileNode(condition, body)
     
     # Parsing de expressões e termos
     def parse_expression(self):
@@ -309,6 +328,8 @@ class Parser:
                 body.append(self.input_statement())
             elif self.current_token()[0] == 'IF':  # Suporte para condicional
                 body.append(self.parse_conditional_statement())
+            elif self.current_token()[0] == 'WHILE':  # Adiciona o suporte para `RodaARoda`
+                body.append(self.parse_while_statement())
             elif self.current_token()[0] == 'ID':
                 body.append(self.assignment_statement())  # Aqui processamos as atribuições
             elif self.current_token()[0] == 'RETURN':
@@ -338,6 +359,8 @@ class Parser:
                 body.append(self.input_statement())
             elif self.current_token()[0] == 'IF':
                 body.append(self.parse_conditional_statement())
+            elif self.current_token()[0] == 'WHILE': 
+                body.append(self.parse_while_statement())
             elif self.current_token()[0] == 'ID':
                 body.append(self.assignment_statement())
             elif self.current_token()[0] == 'RETURN':

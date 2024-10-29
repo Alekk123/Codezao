@@ -13,6 +13,7 @@ TOKEN_SPECIFICATION = [
     ('IF', r'EhUmaCiladaBino'),     # if
     ('ELSE_IF', r'VoceEstaCertoDisso'),  # else if
     ('ELSE', r'Errrou'),            # else
+    ('WHILE', r'RodaARoda'),     # Loop while
     ('END', r';'),               # Fim de instrução
     ('ID', r'[A-Za-z_áéíóúçÁÉÍÓÚÇ]\w*'),  # Identificadores com suporte a caracteres acentuados
     ('OP', r'[+\-*/]'),          # Operadores aritméticos
