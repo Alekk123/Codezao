@@ -10,12 +10,13 @@ TOKEN_SPECIFICATION = [
     ('PRINT', r'PoeNaTela'),     # Comando PoeNaTela
     ('INPUT', r'Receba'),        # Comando Receba
     ('NUMBER', r'\d+(\.\d*)?'),  # Números inteiros e de ponto flutuante
-    ('ASSIGN', r'='),            # Operador de atribuição
+    
     ('END', r';'),               # Fim de instrução
     ('ID', r'[A-Za-z_áéíóúçÁÉÍÓÚÇ]\w*'),  # Identificadores com suporte a caracteres acentuados
     ('OP', r'[+\-*/]'),          # Operadores aritméticos
     ('LOGICAL_OP', r'&&|\|\|'),  # Operadores lógicos AND e OR
     ('COMPARISON_OP', r'==|!=|<=|>=|<|>'), # Operadores de comparação
+    ('ASSIGN', r'='),            # Operador de atribuição
     ('STRING', r'\".*?\"'),      # String
     ('LPAREN', r'\('),           # Parênteses de abertura
     ('RPAREN', r'\)'),           # Parênteses de fechamento

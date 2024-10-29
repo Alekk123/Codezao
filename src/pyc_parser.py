@@ -9,6 +9,14 @@ class BinOp(AST):
         self.left = left
         self.op = op
         self.right = right
+        
+        # Define se a operação é uma comparação ou atribuição
+        if op == '==':
+            self.is_comparison = True
+        elif op == '=':
+            self.is_comparison = False
+        else:
+            self.is_comparison = None  # Outros operadores não são nem comparação nem atribuição
 
 class Num(AST):
     def __init__(self, token):
@@ -62,9 +70,68 @@ class Parser:
         else:
             raise Exception(f'Error parsing input: Expected {token_type}, got {self.current_token()}')
 
+    def peek_next_token(self):
+        """Visualiza o próximo token sem consumi-lo."""
+        if self.pos + 1 < len(self.tokens):
+            return self.tokens[self.pos + 1]
+        return None
+    
     # Parsing de expressões e termos
-    def factor(self):
-        """Faz o parsing de um fator (número ou variável)."""
+    def parse_expression(self):
+        """Processa expressões gerais, incluindo comparações e lógicas."""
+        node = self.parse_logical_expr()
+        return node
+
+    def parse_logical_expr(self):
+        """Processa operadores lógicos (`&&`, `||`) e gerencia precedência de comparação."""
+        node = self.parse_comparison_expr()
+
+        while self.current_token() and self.current_token()[0] == 'LOGICAL_OP':
+            token = self.current_token()
+            self.eat('LOGICAL_OP')
+            right = self.parse_comparison_expr()
+            node = BinOp(left=node, op=token[1], right=right)
+
+        return node
+
+    def parse_comparison_expr(self):
+        """Processa operadores de comparação (`==`, `!=`, `<`, `>`, `<=`, `>=`)."""
+        node = self.parse_arithmetic_expr()
+
+        while self.current_token() and self.current_token()[0] == 'COMPARISON_OP':
+            token = self.current_token()
+            self.eat('COMPARISON_OP')
+            right = self.parse_arithmetic_expr()
+            node = BinOp(left=node, op=token[1], right=right)
+
+        return node
+
+    def parse_arithmetic_expr(self):
+        """Processa expressões aritméticas com operadores + e -."""
+        node = self.parse_term()
+
+        while self.current_token() and self.current_token()[0] == 'OP' and self.current_token()[1] in ('+', '-'):
+            token = self.current_token()
+            self.eat('OP')
+            right = self.parse_term()
+            node = BinOp(left=node, op=token[1], right=right)
+
+        return node
+
+    def parse_term(self):
+        """Processa termos com operadores * e /."""
+        node = self.parse_factor()
+
+        while self.current_token() and self.current_token()[0] == 'OP' and self.current_token()[1] in ('*', '/'):
+            token = self.current_token()
+            self.eat('OP')
+            right = self.parse_factor()
+            node = BinOp(left=node, op=token[1], right=right)
+
+        return node
+
+    def parse_factor(self):
+        """Processa números, variáveis e expressões entre parênteses."""
         token = self.current_token()
         if token[0] == 'NUMBER':
             self.eat('NUMBER')
@@ -72,68 +139,39 @@ class Parser:
         elif token[0] == 'ID':
             self.eat('ID')
             return token[1]
+        elif token[0] == 'BOOLEAN':
+            self.eat('BOOLEAN')
+            return token[1]
+        elif token[0] == 'LPAREN':
+            self.eat('LPAREN')
+            node = self.parse_expression()
+            if self.current_token() and self.current_token()[0] == 'RPAREN':
+                self.eat('RPAREN')
+            else:
+                raise Exception("Erro: Parêntese de fechamento ')' esperado.")
+            return node
         else:
-            raise Exception('Invalid syntax')
+            raise Exception('Erro de sintaxe no fator')
 
-    def term(self):
-        """Faz o parsing de um termo, lidando com multiplicação e divisão."""
-        node = self.factor()
-        while self.current_token() and self.current_token()[0] in ('MUL', 'DIV'):
-            token = self.current_token()
-            self.eat(token[0])
-            node = BinOp(left=node, op=token, right=self.factor())
-        return node
-
-    def expr(self):
-        """Faz o parsing de uma expressão aritmética usando operadores aritméticos."""
-        node = self.term()  # Inicializa com um termo para adição e subtração
-
-        # Processa operadores aritméticos
-        while self.current_token() and self.current_token()[0] == 'OP':
-            token = self.current_token()
-            self.eat('OP')
-            node = BinOp(left=node, op=token[1], right=self.term())
-
-        return node
-
-    
-    def comparison_expr(self):
-        """Faz o parsing de uma expressão de comparação usando operadores como <, >, <=, >=, ==, !=."""
-        node = self.logical_expr()  # Baseia-se em uma expressão lógica para compor a comparação
-
-        # Processa operadores de comparação
-        while self.current_token() and self.current_token()[0] == 'COMPARISON_OP':
-            token = self.current_token()
-            self.eat('COMPARISON_OP')
-            node = BinOp(left=node, op=token[1], right=self.logical_expr())
-
-        return node
-    
-    def logical_expr(self):
-        """Faz o parsing de uma expressão lógica usando operadores lógicos como && e ||."""
-        node = self.expr()  # Começa a expressão lógica com uma expressão aritmética ou comparativa
-
-        # Processa operadores lógicos
-        while self.current_token() and self.current_token()[0] == 'LOGICAL_OP':
-            token = self.current_token()
-            self.eat('LOGICAL_OP')
-            node = BinOp(left=node, op=token[1], right=self.expr())
-
-        return node
-    
     def assignment_statement(self):
-        """Processa uma declaração de atribuição."""
+        """Processa uma declaração de atribuição, diferenciando corretamente `=` e `==`."""
         var_name = self.current_token()
         self.eat('ID')
-        self.eat('ASSIGN')
 
-        # Processa a expressão do lado direito da atribuição
-        expr = self.comparison_expr()  # Chama comparison_expr para avaliar completamente
+        # Verifica se o token atual é `=` para uma atribuição simples
+        if self.current_token() and self.current_token()[0] == 'ASSIGN':
+            self.eat('ASSIGN')  # Consome `=`, pois é uma atribuição
+            expr = self.parse_expression()  # Processa a expressão completa no lado direito
 
-        self.eat('END')
-        return BinOp(left=var_name[1], op='=', right=expr)
+            # Exige `END` para finalizar a atribuição
+            if self.current_token() and self.current_token()[0] == 'END':
+                self.eat('END')
+                return BinOp(left=var_name[1], op='=', right=expr)
+            else:
+                raise Exception(f"Erro: ';' esperado no final da atribuição, mas encontrado: {self.current_token()}")
 
-
+        else:
+            raise Exception("Erro de sintaxe: Esperado operador `=` após o identificador.")
 
     # Parsing de declaração de variável
     def variable_declaration(self):

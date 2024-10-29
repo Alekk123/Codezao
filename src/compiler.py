@@ -83,8 +83,15 @@ class Compiler:
         if operator not in ['+', '-', '*', '/', '&&', '||', '==', '!=', '<', '>', '<=', '>=']:
             raise Exception(f"Operador binário inválido: {operator}")
         
-        operator_map = {'&&': 'and', '||': 'or', '==': '==', '!=': '!=', '<': '<', '>': '>', '<=': '<=', '>=': '>='}
-        operator_python = operator_map.get(operator, operator)
+        # Mapeamento de operadores para Python
+        operator_map = {
+            '&&': 'and', '||': 'or', 
+            '==': '==', '!=': '!=', 
+            '<': '<', '>': '>', 
+            '<=': '<=', '>=': '>='
+        }
+        
+        operator_python = operator_map.get(node.op, node.op)
     
         # Exibe os operandos compilados para depuração
         #print(f"Operando esquerdo compilado: {left}")

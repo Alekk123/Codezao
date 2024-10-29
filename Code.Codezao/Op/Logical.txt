@@ -1,0 +1,44 @@
+SeViraNos30 OlaTudoBem() {
+    SeViraNos30 a;
+    SeViraNos30 b;
+    APipaDoVovoNaoSobeMais resultadoLogico;
+
+    PoeNaTela("Digite um valor para a: ");
+    Receba(a);
+    PoeNaTela("Digite um valor para b: ");
+    Receba(b);
+
+    resultadoLogico = a > b;
+    PoeNaTela("Resultado de a > b: ");
+    PoeNaTela(resultadoLogico);
+
+    resultadoLogico = a < b;
+    PoeNaTela("Resultado de a < b: ");
+    PoeNaTela(resultadoLogico);
+
+    resultadoLogico = a >= b;
+    PoeNaTela("Resultado de a >= b: ");
+    PoeNaTela(resultadoLogico);
+
+    resultadoLogico = a <= b;
+    PoeNaTela("Resultado de a <= b: ");
+    PoeNaTela(resultadoLogico);
+
+    resultadoLogico = a == b;
+    PoeNaTela("Resultado de a == b: ");
+    PoeNaTela(resultadoLogico);
+
+    resultadoLogico = a != b;
+    PoeNaTela("Resultado de a != b: ");
+    PoeNaTela(resultadoLogico);
+
+    resultadoLogico = (a > 0) && (b > 0);
+    PoeNaTela("Resultado de (a > 0) && (b > 0): ");
+    PoeNaTela(resultadoLogico);
+
+    resultadoLogico = (a > 0) || (b > 0);
+    PoeNaTela("Resultado de (a > 0) || (b > 0): ");
+    PoeNaTela(resultadoLogico);
+
+    BeijoDoGordo 0;
+}
