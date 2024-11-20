@@ -54,7 +54,7 @@ class TestConditionals(unittest.TestCase):
         result = execute_code_from_file(code, inputs)
         assert "Igual a 10" in result
         
-    """
+    
     def test_nested_conditionals(self):
         code = '''SeViraNos30 OlaTudoBem() {
             SeViraNos30 a;
@@ -75,4 +75,4 @@ class TestConditionals(unittest.TestCase):
         inputs = ['15', '3']
         result = execute_code_from_file(code, inputs)
         assert "A > 10 e B < 5" in result
-    """
+    

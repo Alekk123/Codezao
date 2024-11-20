@@ -19,7 +19,7 @@ TOKEN_SPECIFICATION = [
     ('BREAK', r'CortaPraMim'),  # Representa uma interrupção de laço
     ('END', r';'),               # Fim de instrução
     ('ID', r'[A-Za-z_áéíóúçÁÉÍÓÚÇ]\w*'),  # Identificadores com suporte a caracteres acentuados
-    ('OP', r'[+\-*/]'),          # Operadores aritméticos
+    ('OP', r'[+\-*/%]'),          # Operadores aritméticos
     ('LOGICAL_OP', r'&&|\|\|'),  # Operadores lógicos AND e OR
     ('COMPARISON_OP', r'==|!=|<=|>=|<|>'), # Operadores de comparação
     ('ASSIGN', r'='),            # Operador de atribuição

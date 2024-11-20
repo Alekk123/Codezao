@@ -5,6 +5,7 @@ SeViraNos30 OlaTudoBem() {
     SeViraNos30 resultado2;
     SeViraNos30 resultado3;
     SeViraNos30 resultado4;
+    SeViraNos30 resultado5;
     PoeNaTela("Digite dois números para as Operações: ");
     Receba(a);
     Receba(b);
@@ -12,10 +13,12 @@ SeViraNos30 OlaTudoBem() {
     resultado2 = a - b;
     resultado3 = a * b;
     resultado4 = a / b;
+    resultado5 = a % b;
     PoeNaTela("Resultado das Operações: ");
     PoeNaTela(resultado1);
     PoeNaTela(resultado2);
     PoeNaTela(resultado3);
     PoeNaTela(resultado4);
+    PoeNaTela(resultado5);
     BeijoDoGordo 0;
 }

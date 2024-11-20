@@ -231,7 +231,7 @@ class Parser:
         """Processa termos com operadores * e /."""
         node = self.parse_factor()
 
-        while self.current_token() and self.current_token()[0] == 'OP' and self.current_token()[1] in ('*', '/'):
+        while self.current_token() and self.current_token()[0] == 'OP' and self.current_token()[1] in ('*', '/', '%'):
             token = self.current_token()
             self.eat('OP')
             right = self.parse_factor()

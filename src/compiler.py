@@ -6,275 +6,218 @@ class Compiler:
         self.output = []
         self.variable_types = {}  # Inicializar a tabela de tipos de variáveis
 
-    def compile(self, node):
+    def compile(self, node, indent_level=0):
         """Função principal que decide como compilar cada tipo de nó."""
         if isinstance(node, FuncDecl):
-            return self.compile_function(node)
+            return self.compile_function(node, indent_level)
         elif isinstance(node, VarDecl):
-            return self.compile_variable(node)
+            return self.compile_variable(node, indent_level)
         elif isinstance(node, BinOp):
             if node.op == '=':  # Trata a atribuição separadamente
-                return self.compile_assignment(node)
+                return self.compile_assignment(node, indent_level)
             else:
-                return self.compile_binop(node)
+                return self.compile_binop(node, indent_level)
         elif isinstance(node, Num):
-            return self.compile_num(node)
+            return self.compile_num(node, indent_level)
         elif isinstance(node, Print):
-            return self.compile_print(node)
+            return self.compile_print(node, indent_level)
         elif isinstance(node, Input):
-            return self.compile_input(node)
+            return self.compile_input(node, indent_level)
         elif isinstance(node, FunctionCall):
-            return self.compile_function_call(node)
+            return self.compile_function_call(node, indent_level)
         elif isinstance(node, IfNode):  # Suporte para condicional
-            return self.compile_if(node)
+            return self.compile_if(node, indent_level)
         elif isinstance(node, WhileNode):  # Suporte para loop While
-            return self.compile_while(node)
+            return self.compile_while(node, indent_level)
         elif isinstance(node, ForNode):  # Suporte para loop for
-            return self.compile_for(node)
+            return self.compile_for(node, indent_level)
         elif isinstance(node, BreakNode):
-            return self.compile_break()
-        elif isinstance(node, str):  # Identificadores (variáveis como 'a', 'b', etc.)
+            return self.compile_break(indent_level)
+        elif isinstance(node, str):  # Identificadores (variáveis)
             return node  # Retorna o nome da variável diretamente
         elif isinstance(node, int):
-            return self.compile_return(node)
+            return self.compile_return(node, indent_level)
         elif isinstance(node, list):
-            return self.compile_body(node)
+            return self.compile_body(node, indent_level)
         return None
 
-# Métodos separados para cada tipo de compilação
-    def compile_function(self, node):
+    def compile_function(self, node, indent_level=0):
         """Compila uma declaração de função."""
-        self.output.append(f"def {node.func_name}():")
+        indent = '    ' * indent_level
+        self.output.append(f"{indent}def {node.func_name}():")
         for stmt in node.body:
-            compiled_stmt = self.compile(stmt)
+            compiled_stmt = self.compile(stmt, indent_level + 1)
             if compiled_stmt:
-                self.output.append(f"    {compiled_stmt}")
+                self.output.append(compiled_stmt)
         self.output.append("")  # Adiciona uma linha em branco após a função
 
-    def compile_variable(self, node):
+    def compile_variable(self, node, indent_level=0):
         """Compila a declaração de uma variável."""
+        indent = '    ' * indent_level
         self.variable_types[node.var_name] = node.var_type
         if node.var_type == 'SeViraNos30':
             value = node.value if node.value else 0
-            return f"{node.var_name} = {value}"
+            return f"{indent}{node.var_name} = {value}"
         elif node.var_type == 'QuemQuerDinheiro':
             value = node.value if node.value else 0.0
-            return f"{node.var_name} = {value}"
+            return f"{indent}{node.var_name} = {value}"
         elif node.var_type == 'APipaDoVovoNaoSobeMais':
             value = node.value if node.value else "False"
-            return f"{node.var_name} = {value}"
+            return f"{indent}{node.var_name} = {value}"
         elif node.var_type == 'Maoee':  # Suporte para char (Maoee)
             value = node.value if node.value else "' '"
-            return f"{node.var_name} = {value}"
-        
-    def compile_if(self, node, indent_level=0):
-        """Compila instruções condicionais if, elif, else com controle de indentação adequado para nested conditions."""
-        output = []
-        base_indent = '    ' * indent_level  # Nível de indentação para o 'if'
-        elif_else_indent = '    ' * (indent_level + 1)  # Nível de indentação para o 'elif' e 'else'
-        inner_indent = '    ' * (indent_level + 2)  # Nível de indentação para o conteúdo interno dos blocos
+            return f"{indent}{node.var_name} = {value}"
 
-        nested_level = 0  # Controle do nível de indentação para if aninhados
-
-        for conditional in node.conditionals:
-            if conditional[0] == 'if':
-                current_indent = base_indent if nested_level == 0 else '    ' * (indent_level + nested_level)
-                output.append(f"{current_indent}if {self.compile(conditional[1])}:")
-                
-                for stmt in conditional[2]:  # Bloco interno do 'if'
-                    compiled_stmt = self.compile(stmt)
-                    if compiled_stmt:
-                        output.append(f"{current_indent}{'    ' * 2}{compiled_stmt}")
-
-                nested_level += 1  # Aumenta o nível de indentação para if aninhado
-
-            elif conditional[0] == 'elif':
-                output.append(f"{elif_else_indent}elif {self.compile(conditional[1])}:")
-                
-                for stmt in conditional[2]:  # Bloco interno do 'elif'
-                    compiled_stmt = self.compile(stmt)
-                    if compiled_stmt:
-                        output.append(f"{inner_indent}{compiled_stmt}")
-
-            elif conditional[0] == 'else':
-                current_else_indent = base_indent if nested_level == 0 else elif_else_indent
-                output.append(f"{current_else_indent}else:")
-                
-                for stmt in conditional[1]:  # Bloco interno do 'else'
-                    compiled_stmt = self.compile(stmt)
-                    if compiled_stmt:
-                        output.append(f"{inner_indent}{compiled_stmt}")
-                
-                if nested_level > 0:
-                    nested_level -= 1  # Diminui o nível ao sair do bloco aninhado
-
-        compiled_code = "\n".join(output)
-        
-        # Log para verificar a formatação e a lógica
-        print("Código condicional compilado:\n", compiled_code)
-        
-        return compiled_code
-    
-    def compile_while(self, node, indent_level=0):
-        """Compila o loop `RodaARoda` em código Python com a indentação adequada."""
-        output = []
-        indent = '    ' * indent_level  # Define o nível de indentação para o `while`
-
-        # Adiciona o cabeçalho do loop com a condição
-        output.append(f"{indent}while {self.compile(node.condition)}:")
-
-        # Processa o corpo do loop com um nível adicional de indentação e dois espaços extras
-        inner_indent = '    ' * (indent_level + 1) + '  '  # Inclui dois espaços extras
-
-        for stmt in node.body:
-            compiled_stmt = self.compile(stmt)  # Compila cada instrução do corpo
-            if compiled_stmt:
-                output.append(f"{inner_indent}{compiled_stmt}")
-
-        compiled_code = "\n".join(output)
-        
-        # Log para verificar a formatação e a lógica
-        print("Código `while` compilado:\n", compiled_code)
-        
-        return compiled_code
-    
-    def compile_for(self, node, indent_level=0):
-        """Compila o laço `VaiQueEhTua` como um loop `while` em Python."""
-        output = []
-        
-        # Inicialização fora do bloco `while`, sem indentação extra
-        output.append(f"{self.compile(node.init)}")
-
-        # Cabeçalho do `while` com uma leve indentação extra
-        base_indent = '    ' * (indent_level + 1)  # Adiciona uma indentação extra
-        output.append(f"{base_indent}while {self.compile(node.condition)}:")
-
-        # Corpo do `while` com uma indentação adicional
-        inner_indent = '    ' * (indent_level + 2)  # Mantém o corpo ainda mais dentro do bloco
-        for stmt in node.body:
-            compiled_stmt = self.compile(stmt)
-            if compiled_stmt:
-                output.append(f"{inner_indent}{compiled_stmt}")
-
-        # Incremento ao final do bloco `while`
-        output.append(f"{inner_indent}{self.compile(node.increment)}")
-
-        # Gera o código compilado
-        compiled_code = "\n".join(output)
-        
-        # Log para verificação
-        print("Código `for` compilado como `while`:\n", compiled_code)
-        
-        return compiled_code
-
-    def compile_break(self):
-        """Compila a instrução `CortaPraMim` como `break` em Python."""
-        return "break"
-
-    def compile_binop(self, node):
-        """Compila operações binárias com verificações de segurança e depuração detalhada."""
-        # Verifica se os operadores e operandos existem
-        if node.left is None or node.right is None or node.op is None:
-            raise Exception(f"Erro: Operadores ou operandos inválidos. Node.left: {node.left}, Node.op: {node.op}, Node.right: {node.right}")
-
-        # Exibe informações de depuração sobre o nó de operação binária
-        #print(f"Compilando BinOp: {node.left} {node.op} {node.right}")
-    
-        # Compila os operandos esquerdo e direito
-        left = self.compile(node.left)
-        right = self.compile(node.right)
-    
-        # Verifica se os operandos são válidos
-        if left is None:
-            raise Exception(f"Erro: Operando esquerdo é None. Node.left: {node.left}")
-        if right is None:
-            raise Exception(f"Erro: Operando direito é None. Node.right: {node.right}")
-    
-        # Verifica se o operador é válido
-        operator = node.op 
-        if operator not in ['+', '-', '*', '/', '&&', '||', '==', '!=', '<', '>', '<=', '>=']:
-            raise Exception(f"Operador binário inválido: {operator}")
-        
-        # Mapeamento de operadores para Python
-        operator_map = {
-            '&&': 'and', '||': 'or', 
-            '==': '==', '!=': '!=', 
-            '<': '<', '>': '>', 
-            '<=': '<=', '>=': '>='
-        }
-        
-        operator_python = operator_map.get(node.op, node.op)
-    
-        # Exibe os operandos compilados para depuração
-        #print(f"Operando esquerdo compilado: {left}")
-        #print(f"Operando direito compilado: {right}")
-    
-        # Retorna a operação binária compilada no formato de Python
-        return f"{left} {operator_python} {right}"
-    
-    def compile_assignment(self, node):
+    def compile_assignment(self, node, indent_level=0):
         """Compila uma atribuição (assignment)."""
+        indent = '    ' * indent_level
         left = node.left
-        right = self.compile(node.right)  # Expressão que está sendo atribuída
-        return f"{left} = {right}"
+        right = self.compile(node.right, indent_level)
+        return f"{indent}{left} = {right}"
 
-    def compile_num(self, node):
+    def compile_binop(self, node, indent_level=0):
+        """Compila operações binárias."""
+        left = self.compile(node.left, indent_level)
+        right = self.compile(node.right, indent_level)
+        operator = node.op
+        operator_map = {
+            '&&': 'and', '||': 'or',
+            '==': '==', '!=': '!=',
+            '<': '<', '>': '>',
+            '<=': '<=', '>=': '>=',
+            '%': '%'
+        }
+        operator_python = operator_map.get(operator, operator)
+        return f"{left} {operator_python} {right}"
+
+    def compile_num(self, node, indent_level=0):
         """Compila números."""
+        # Números são retornados como estão, sem indentação
         return node.value
 
-    def compile_print(self, node):
+    def compile_print(self, node, indent_level=0):
         """Compila a instrução de impressão (PoeNaTela)."""
+        indent = '    ' * indent_level
         if node.text.startswith('"'):  # Se for string
-            return f'print({node.text})'
+            return f'{indent}print({node.text})'
         else:  # Se for uma variável
-            return f'print({node.text})'
+            return f'{indent}print({node.text})'
 
-    def compile_input(self, node):
+    def compile_input(self, node, indent_level=0):
         """Compila a instrução de entrada (Receba)."""
+        indent = '    ' * indent_level
         var_type = self.variable_types.get(node.var_name, None)
         if var_type == 'SeViraNos30':
-            return (f'try:\n'
-                    f'      {node.var_name} = int(input())\n'
-                    f'    except ValueError:\n'
-                    f'      print("Erro: A variável {node.var_name} deve receber um número inteiro!")\n'
-                    f'      raise ValueError("A variável {node.var_name} deve ser um número inteiro!")')
+            return (f'{indent}try:\n'
+                    f'{indent}    {node.var_name} = int(input())\n'
+                    f'{indent}except ValueError:\n'
+                    f'{indent}    print("Erro: A variável {node.var_name} deve receber um número inteiro!")\n'
+                    f'{indent}    raise ValueError("A variável {node.var_name} deve ser um número inteiro!")')
         elif var_type == 'QuemQuerDinheiro':
-            return (f'try:\n'
-                    f'      {node.var_name} = float(input())\n'
-                    f'    except ValueError:\n'
-                    f'      print("Erro: A variável {node.var_name} deve receber um número float!")\n'
-                    f'      raise ValueError("A variável {node.var_name} deve ser um número float!")')
+            return (f'{indent}try:\n'
+                    f'{indent}    {node.var_name} = float(input())\n'
+                    f'{indent}except ValueError:\n'
+                    f'{indent}    print("Erro: A variável {node.var_name} deve receber um número float!")\n'
+                    f'{indent}    raise ValueError("A variável {node.var_name} deve ser um número float!")')
         elif var_type == 'APipaDoVovoNaoSobeMais':
-            return (f'while True:\n'
-                    f'      valor = input().lower()\n'
-                    f'      if valor in ["true", "false"]:\n'
-                    f'          {node.var_name} = True if valor == "true" else False\n'
-                    f'          break\n'
-                    f'      else:\n'
-                    f'          print("Erro: A variável {node.var_name} deve receber True ou False!")')
+            return (f'{indent}while True:\n'
+                    f'{indent}    valor = input().lower()\n'
+                    f'{indent}    if valor in ["true", "false"]:\n'
+                    f'{indent}        {node.var_name} = True if valor == "true" else False\n'
+                    f'{indent}        break\n'
+                    f'{indent}    else:\n'
+                    f'{indent}        print("Erro: A variável {node.var_name} deve receber True ou False!")')
         elif var_type == 'Maoee':  # Validação para char
-            return (f'while True:\n'
-                    f'      valor = input()\n'
-                    f'      if len(valor) == 1:\n'
-                    f'          {node.var_name} = valor\n'
-                    f'          break\n'
-                    f'      else:\n'
-                    f'          print("Erro: A variável {node.var_name} deve receber um único caractere!")')
+            return (f'{indent}while True:\n'
+                    f'{indent}    valor = input()\n'
+                    f'{indent}    if len(valor) == 1:\n'
+                    f'{indent}        {node.var_name} = valor\n'
+                    f'{indent}        break\n'
+                    f'{indent}    else:\n'
+                    f'{indent}        print("Erro: A variável {node.var_name} deve receber um único caractere!")')
         else:
-            return f'{node.var_name} = input()'
+            return f'{indent}{node.var_name} = input()'
 
-    def compile_function_call(self, node):
+    def compile_function_call(self, node, indent_level=0):
         """Compila chamadas de função."""
-        return f'{node.func_name}()'
+        indent = '    ' * indent_level
+        return f'{indent}{node.func_name}()'
 
-    def compile_return(self, node):
+    def compile_if(self, node, indent_level=0):
+        """Compila instruções condicionais if, elif, else."""
+        output = []
+        indent = '    ' * indent_level
+        for conditional in node.conditionals:
+            if conditional[0] == 'if':
+                output.append(f"{indent}if {self.compile(conditional[1], indent_level)}:")
+                for stmt in conditional[2]:
+                    compiled_stmt = self.compile(stmt, indent_level + 1)
+                    if compiled_stmt:
+                        output.append(compiled_stmt)
+            elif conditional[0] == 'elif':
+                output.append(f"{indent}elif {self.compile(conditional[1], indent_level)}:")
+                for stmt in conditional[2]:
+                    compiled_stmt = self.compile(stmt, indent_level + 1)
+                    if compiled_stmt:
+                        output.append(compiled_stmt)
+            elif conditional[0] == 'else':
+                output.append(f"{indent}else:")
+                for stmt in conditional[1]:
+                    compiled_stmt = self.compile(stmt, indent_level + 1)
+                    if compiled_stmt:
+                        output.append(compiled_stmt)
+        return "\n".join(output)
+
+    def compile_while(self, node, indent_level=0):
+        """Compila o loop `RodaARoda`."""
+        output = []
+        indent = '    ' * indent_level
+        output.append(f"{indent}while {self.compile(node.condition, indent_level)}:")
+        for stmt in node.body:
+            compiled_stmt = self.compile(stmt, indent_level + 1)
+            if compiled_stmt:
+                output.append(compiled_stmt)
+        return "\n".join(output)
+
+    def compile_for(self, node, indent_level=0):
+        """Compila o laço `VaiQueEhTua`."""
+        output = []
+        # Inicialização
+        init_code = self.compile(node.init, indent_level)
+        if init_code:
+            output.append(init_code)
+        indent = '    ' * indent_level
+        # Cabeçalho do loop
+        output.append(f"{indent}while {self.compile(node.condition, indent_level)}:")
+        # Corpo do loop
+        for stmt in node.body:
+            compiled_stmt = self.compile(stmt, indent_level + 1)
+            if compiled_stmt:
+                output.append(compiled_stmt)
+        # Incremento
+        increment_code = self.compile(node.increment, indent_level + 1)
+        if increment_code:
+            output.append(increment_code)
+        return "\n".join(output)
+
+    def compile_break(self, indent_level=0):
+        """Compila a instrução `CortaPraMim` como `break` em Python."""
+        indent = '    ' * indent_level
+        return f"{indent}break"
+
+    def compile_return(self, node, indent_level=0):
         """Compila instruções de retorno."""
-        return f"return {node}"
+        indent = '    ' * indent_level
+        return f"{indent}return {node}"
 
-    def compile_body(self, body):
+    def compile_body(self, body, indent_level=0):
         """Compila um bloco de código que é uma lista de instruções."""
+        output = []
         for stmt in body:
-            self.compile(stmt)
+            compiled_stmt = self.compile(stmt, indent_level)
+            if compiled_stmt:
+                output.append(compiled_stmt)
+        return "\n".join(output)
 
     def get_output(self):
         """Retorna o código Python gerado."""
