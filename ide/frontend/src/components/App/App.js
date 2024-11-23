@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import FileExplorer from '../FileExplorer/FileExplorer';
 import Editor from '../Editor/Editor';
 import Console from '../Console/Console';
+import Footer from '../Footer/Footer';
 import GlobalStyles from '../../styles/GlobalStyles';
 import { ThemeProvider } from 'styled-components';
-import { darkTheme } from '../../styles/themes';
+import { darkTheme, lightTheme } from '../../styles/themes';
 import api from '../../utils/api';
 import { FaPlay, FaSave } from 'react-icons/fa';
 import { IoClose } from 'react-icons/io5';
@@ -22,13 +23,31 @@ function App() {
   const [code, setCode] = useState('');
   const [output, setOutput] = useState('');
   const [currentFile, setCurrentFile] = useState(null);
+  const [connectionStatus, setConnectionStatus] = useState('disconnected');
+  const [isDarkTheme, setIsDarkTheme] = useState(true);
+
+  useEffect(() => {
+    const checkConnection = () => {
+      api.get('/ping')
+        .then(() => setConnectionStatus('connected'))
+        .catch(() => setConnectionStatus('disconnected'));
+    };
+  
+    checkConnection();
+  
+    // Verifica a cada 10 segundos
+    const interval = setInterval(checkConnection, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   const compileCode = async () => {
     try {
       const response = await api.post('/compile', { code });
       setOutput(response.data.output);
+      setConnectionStatus('connected');
     } catch (error) {
       setOutput('Erro durante a compilação.');
+      setConnectionStatus('disconnected');
       console.error(error);
     }
   };
@@ -42,8 +61,10 @@ function App() {
     try {
       await api.post(`/files/${currentFile.name}`, { content: code });
       alert('Arquivo salvo com sucesso!');
+      setConnectionStatus('connected');
     } catch (error) {
       alert('Erro ao salvar o arquivo.');
+      setConnectionStatus('disconnected');
       console.error(error);
     }
   };
@@ -53,8 +74,19 @@ function App() {
     setCurrentFile(null);
   };
 
+  const toggleTheme = () => {
+    setIsDarkTheme((prev) => !prev);
+  };
+
+  useEffect(() => {
+    // Verifica a conexão com o backend
+    api.get('/ping')
+      .then(() => setConnectionStatus('connected'))
+      .catch(() => setConnectionStatus('disconnected'));
+  }, []);
+
   return (
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={isDarkTheme ? darkTheme : lightTheme}>
       <GlobalStyles />
       <AppContainer>
         {/* Header */}
@@ -85,7 +117,7 @@ function App() {
                 </button>
               </div>
             </EditorHeader>
-            <Editor code={code} setCode={setCode} />
+            <Editor code={code} setCode={setCode} isDarkTheme={isDarkTheme} />
           </MiddlePane>
 
           {/* Console */}
@@ -93,6 +125,16 @@ function App() {
             <Console output={output} />
           </RightPane>
         </MainContainer>
+
+        {/* Footer */}
+        <Footer
+          currentFile={currentFile}
+          connectionStatus={connectionStatus}
+          lastAction={output}
+          toggleTheme={toggleTheme}
+          isDarkTheme={isDarkTheme}
+        />
+        
       </AppContainer>
     </ThemeProvider>
   );

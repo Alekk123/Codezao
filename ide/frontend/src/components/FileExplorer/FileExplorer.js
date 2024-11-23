@@ -2,11 +2,9 @@ import React, { useState, useEffect } from 'react';
 import api from '../../utils/api';
 import {
   FiFolder,
-  FiFolderPlus,
-  FiFile,
-  FiFilePlus,
   FiChevronDown,
   FiChevronRight,
+  FiFile,
   FiEdit,
 } from 'react-icons/fi';
 import { ExplorerContainer } from './FileExplorerStyles';
@@ -33,6 +31,13 @@ function FileExplorer({ setCode, setCurrentFile }) {
       .finally(() => setLoading(false));
   };
 
+  const toggleFolder = (folderName) => {
+    setExpandedFolders((prev) => ({
+      ...prev,
+      [folderName]: !prev[folderName],
+    }));
+  };
+
   const handleRename = (fileOrFolder, newName) => {
     if (!newName.trim()) return;
 
@@ -46,13 +51,6 @@ function FileExplorer({ setCode, setCurrentFile }) {
       });
   };
 
-  const toggleFolder = (folderName) => {
-    setExpandedFolders((prev) => ({
-      ...prev,
-      [folderName]: !prev[folderName],
-    }));
-  };
-
   const handleFileClick = (path) => {
     api.get(`/files/${path}`)
       .then((response) => {
@@ -64,7 +62,7 @@ function FileExplorer({ setCode, setCurrentFile }) {
       });
   };
 
-  const renderItems = (items, currentPath = '') => {
+  const renderItems = (items, depth = 0, currentPath = '') => {
     return items.map((item) => {
       const fullPath = currentPath ? `${currentPath}/${item.name}` : item.name;
       const isRenaming = renaming === item.name;
@@ -72,7 +70,11 @@ function FileExplorer({ setCode, setCurrentFile }) {
       if (item.type === 'folder') {
         return (
           <div key={fullPath}>
-            <div className="folder" onClick={() => toggleFolder(fullPath)}>
+            <div
+              className="folder indent"
+              style={{ marginLeft: depth * 20 }}
+              onClick={() => toggleFolder(fullPath)}
+            >
               {expandedFolders[fullPath] ? <FiChevronDown /> : <FiChevronRight />}
               <FiFolder />
               {isRenaming ? (
@@ -95,7 +97,9 @@ function FileExplorer({ setCode, setCurrentFile }) {
                 </button>
               </div>
             </div>
-            {expandedFolders[fullPath] && <div>{renderItems(item.files, fullPath)}</div>}
+            {expandedFolders[fullPath] && (
+              <div>{renderItems(item.files, depth + 1, fullPath)}</div>
+            )}
           </div>
         );
       }
@@ -103,7 +107,8 @@ function FileExplorer({ setCode, setCurrentFile }) {
       return (
         <div
           key={fullPath}
-          className="file"
+          className="file indent"
+          style={{ marginLeft: depth * 20 }}
           onClick={() => handleFileClick(fullPath)}
         >
           <FiFile />

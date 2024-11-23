@@ -7,6 +7,15 @@ const GlobalStyles = createGlobalStyle`
     background-color: ${({ theme }) => theme.colors.background};
     color: ${({ theme }) => theme.colors.text};
     font-family: 'Roboto', sans-serif;
+    height: 100%; /* Garante que o body ocupe exatamente a altura */
+    overflow: hidden; /* Evita elementos extras rolando abaixo do footer */
+  }
+
+  #root {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Garante que o root ocupe toda a janela */
+    overflow: hidden; /* Bloqueia transbordo do conteúdo */
   }
 
   * {

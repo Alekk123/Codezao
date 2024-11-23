@@ -1,16 +1,56 @@
 import styled from 'styled-components';
 
 export const ExplorerContainer = styled.div`
+  padding: 10px;
+  font-family: 'Roboto', sans-serif;
+
   .folder, .file {
-    padding: 5px;
-    margin-left: 10px;
-    cursor: pointer;
     display: flex;
     align-items: center;
+    padding: 5px;
+    cursor: pointer;
+    position: relative;
 
     &:hover {
       background-color: ${({ theme }) => theme.colors.panel};
     }
+  }
+
+  .folder {
+    font-weight: bold;
+    color: ${({ theme }) => theme.colors.text};
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: ${(props) => (props.depth || 0) * 20}px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 12px;
+      height: 12px;
+      background-color: ${({ theme }) => theme.colors.border};
+      border-radius: 50%;
+    }
+  }
+
+  .file {
+    color: ${({ theme }) => theme.colors.text};
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: ${(props) => (props.depth || 0) * 20}px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 12px;
+      height: 12px;
+      background-color: ${({ theme }) => theme.colors.highlight};
+      border-radius: 50%;
+    }
+  }
+
+  .indent {
+    margin-left: ${(props) => (props.depth || 0) * 20}px;
   }
 
   .file-actions {

@@ -96,6 +96,15 @@ def rename_item():
         return jsonify({'message': 'Renomeado com sucesso'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@app.route('/ping', methods=['GET'])
+def ping():
+    """
+    Rota simples para verificar o status de conexão.
+    Retorna "pong" se o backend está funcionando.
+    """
+    return jsonify({'message': 'pong'}), 200 
+
 
 def compile_and_run(code):
     """Compila e executa o código, capturando a saída."""
