@@ -60,6 +60,31 @@ def get_file_content(filename):
             return jsonify({'error': str(e)}), 500
     else:
         return jsonify({'error': 'Arquivo não encontrado'}), 404
+    
+@app.route('/search', methods=['GET'])
+def search_files():
+    """
+    Busca arquivos e pastas no diretório principal e subdiretórios.
+    """
+    query = request.args.get('query', '').lower()
+
+    if not query:
+        return jsonify({'results': []})
+
+    results = []
+
+    for root, dirs, files in os.walk(FILES_DIR):
+        for file in files:
+            if query in file.lower():
+                relative_path = os.path.relpath(os.path.join(root, file), FILES_DIR)
+                results.append({'name': file, 'path': relative_path, 'type': 'file'})
+
+        for dir_ in dirs:
+            if query in dir_.lower():
+                relative_path = os.path.relpath(os.path.join(root, dir_), FILES_DIR)
+                results.append({'name': dir_, 'path': relative_path, 'type': 'folder'})
+
+    return jsonify({'results': results})
 
 @app.route('/compile', methods=['POST'])
 def compile():
@@ -96,6 +121,35 @@ def rename_item():
         return jsonify({'message': 'Renomeado com sucesso'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/delete', methods=['POST'])
+def delete_item():
+    """
+    Exclui um arquivo ou pasta.
+    """
+    data = request.get_json()
+    name = data.get('name')
+
+    if not name:
+        return jsonify({'error': 'Nome inválido'}), 400
+
+    target_path = os.path.join(FILES_DIR, name)
+
+    try:
+        if not os.path.exists(target_path):
+            return jsonify({'error': 'Arquivo ou pasta não encontrado'}), 404
+
+        if os.path.isdir(target_path):
+            # Remove a pasta e todo o conteúdo recursivamente
+            import shutil
+            shutil.rmtree(target_path)
+        else:
+            # Remove apenas o arquivo
+            os.remove(target_path)
+
+        return jsonify({'message': f'{name} excluído com sucesso'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
     
 @app.route('/ping', methods=['GET'])
 def ping():
@@ -104,6 +158,32 @@ def ping():
     Retorna "pong" se o backend está funcionando.
     """
     return jsonify({'message': 'pong'}), 200 
+
+@app.route('/create', methods=['POST'])
+def create_file_or_folder():
+    """
+    Cria um novo arquivo ou pasta no FILES_DIR.
+    """
+    data = request.get_json()
+    name = data.get('name')
+    is_folder = data.get('isFolder', False)
+
+    if not name:
+        return jsonify({'error': 'Nome inválido'}), 400
+
+    target_path = os.path.join(FILES_DIR, name)
+
+    try:
+        if is_folder:
+            os.makedirs(target_path, exist_ok=True)
+        else:
+            # Cria um arquivo vazio
+            with open(target_path, 'w', encoding='utf-8') as f:
+                pass
+
+        return jsonify({'message': f'{"Pasta" if is_folder else "Arquivo"} criado com sucesso.'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 def compile_and_run(code):

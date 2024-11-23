@@ -103,20 +103,25 @@ function App() {
 
           {/* Editor */}
           <MiddlePane>
-            <EditorHeader>
-              <span>{currentFile ? currentFile.name : 'Sem título'}</span>
-              <div>
-                <button onClick={compileCode} title="Compilar">
-                  <FaPlay size={18} />
-                </button>
-                <button onClick={saveFile} title="Salvar">
-                  <FaSave size={18} />
-                </button>
-                <button onClick={closeFile} title="Fechar">
-                  <IoClose size={18} />
-                </button>
-              </div>
-            </EditorHeader>
+          <EditorHeader>
+            {/* Título do arquivo */}
+            <div className="file-title">
+              {currentFile ? currentFile.name : 'Sem título'}
+              <button className="close-button" onClick={closeFile} title="Fechar">
+                ✕
+              </button>
+            </div>
+
+            {/* Botões de ação */}
+            <div className="action-buttons">
+              <button onClick={saveFile} title="Salvar">
+                <FaSave size={18} />
+              </button>
+              <button onClick={compileCode} title="Compilar">
+                <FaPlay size={18} />
+              </button>
+            </div>
+          </EditorHeader>
             <Editor code={code} setCode={setCode} isDarkTheme={isDarkTheme} />
           </MiddlePane>
 

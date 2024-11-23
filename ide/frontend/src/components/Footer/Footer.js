@@ -42,7 +42,7 @@ function Footer({
         <a href="#!" title="Exemplos">
           Exemplos
         </a>
-        <span>Codezão IDE - Criado por [GustavoMCF]</span>
+        <span>Codezão IDE - Criado com amor</span>
       </div>
     </FooterContainer>
   );

@@ -16,11 +16,11 @@ def read_file(file_name):
     try:
         with open(file_name, "r", encoding="utf-8") as file:
             code = file.read()
-        print("Código lido do arquivo:")
+        # print("Código lido do arquivo:")
         #print(code)
         return code
     except Exception as e:
-        print(f"Erro ao ler o arquivo: {e}")
+        #print(f"Erro ao ler o arquivo: {e}")
         return None
 
 def process_tokens(code):
@@ -38,7 +38,7 @@ def process_tokens(code):
         #print("Tokens:", tokens)
         return tokens
     except Exception as e:
-        print(f"Erro ao tokenizar o código: {e}")
+        #print(f"Erro ao tokenizar o código: {e}")
         return None
 
 def parse_code(tokens):
@@ -54,10 +54,10 @@ def parse_code(tokens):
     try:
         parser = Parser(tokens)
         ast = parser.parse()
-        print("AST:", ast)
+        #print("AST:", ast)
         return ast
     except Exception as e:
-        print(f"Erro ao criar a AST: {e}")
+        #print(f"Erro ao criar a AST: {e}")
         return None
 
 def compile_code(ast):
@@ -74,11 +74,11 @@ def compile_code(ast):
         compiler = Compiler()
         compiler.compile(ast)
         python_code = compiler.get_output()
-        print("Python Code:")
-        print(python_code)
+        #print("Python Code:")
+        #print(python_code)
         return python_code
     except Exception as e:
-        print(f"Erro ao compilar o código: {e}")
+        #print(f"Erro ao compilar o código: {e}")
         return None
 
 def execute_code(python_code):
@@ -95,11 +95,12 @@ def execute_code(python_code):
         
         # Verifica se a função 'OlaTudoBem' está no escopo local
         if 'OlaTudoBem' in exec_locals:
-            print("Função 'OlaTudoBem' encontrada, executando agora...")
+            #print("Função 'OlaTudoBem' encontrada, executando agora...")
             exec_locals['OlaTudoBem']()  # Chama a função gerada
         else:
             # Se a função não for encontrada, exibir uma mensagem detalhada
-            print(f"Função principal 'OlaTudoBem' não foi encontrada. Funções disponíveis no escopo: {exec_locals.keys()}")
+            #print(f"Função principal 'OlaTudoBem' não foi encontrada. Funções disponíveis no escopo: {exec_locals.keys()}")
+            return
     except Exception as e:
         print(f"Erro ao executar o código Python: {e}")
 
