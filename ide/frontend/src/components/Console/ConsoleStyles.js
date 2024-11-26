@@ -5,12 +5,25 @@ export const ConsoleContainer = styled.div`
   display: flex;
   flex-direction: column;
 
-  .console-header {
+    .console-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     background-color: ${({ theme }) => theme.colors.header};
     color: ${({ theme }) => theme.colors.text};
     font-weight: bold;
     padding: 10px;
     border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+
+    .clear-icon {
+      cursor: pointer;
+      color: ${({ theme }) => theme.colors.text};
+      transition: color 0.2s ease-in-out;
+
+      &:hover {
+        color: ${({ theme }) => theme.colors.error}; /* Cor de destaque ao passar o mouse */
+      }
+    }
   }
 
   .console-output {

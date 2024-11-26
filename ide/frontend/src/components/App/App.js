@@ -72,6 +72,10 @@ function App() {
     }
   };
 
+  const clearConsole = () => {
+    setOutput('');
+  };
+
   const saveFile = async () => {
     if (!currentFile) {
       setIsSavingNewFile(true); // Abrir modal para salvar novo arquivo
@@ -178,7 +182,7 @@ function App() {
 
           {/* Console */}
           <RightPane>
-            <Console output={output} />
+            <Console output={output} clearOutput={clearConsole} />
           </RightPane>
         </MainContainer>
 
