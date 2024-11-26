@@ -36,7 +36,7 @@ function Footer({
             <span className="slider" />
           </label>
         </div>
-        <a href="#!" title="Documentação">
+        <a href="https://github.com/Alekk123/Codezao" title="Documentação">
           Documentação
         </a>
         <a href="#!" title="Exemplos">
