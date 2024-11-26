@@ -187,6 +187,31 @@ def create_file_or_folder():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/save_or_create', methods=['POST'])
+def save_or_create_file():
+    """
+    Salva um arquivo existente ou cria um novo arquivo em uma pasta específica.
+    """
+    data = request.get_json()
+    file_path = data.get('filePath')  # Caminho do arquivo relativo à raiz
+    content = data.get('content')  # Conteúdo para salvar
+
+    if not file_path or content is None:
+        return jsonify({'error': 'Caminho do arquivo e conteúdo são necessários'}), 400
+
+    target_path = os.path.join(FILES_DIR, file_path)
+
+    try:
+        # Diagnóstico: Verificar conteúdo recebido
+        #print(f"Salvando conteúdo: {repr(content)}")
+
+        # Salva ou cria o arquivo sem adicionar quebras de linha
+        with open(target_path, 'w', newline='', encoding='utf-8') as f:
+            f.write(content)
+
+        return jsonify({'message': 'Arquivo salvo ou criado com sucesso'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 def compile_and_run(code):
     """Compila e executa o código, capturando a saída."""

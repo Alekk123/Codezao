@@ -3,6 +3,7 @@ import FileExplorer from '../FileExplorer/FileExplorer';
 import Editor from '../Editor/Editor';
 import Console from '../Console/Console';
 import Footer from '../Footer/Footer';
+import SaveFileModal from '../SaveFileModal/SaveFileModal';
 import GlobalStyles from '../../styles/GlobalStyles';
 import { ThemeProvider } from 'styled-components';
 import { darkTheme, lightTheme } from '../../styles/themes';
@@ -25,6 +26,24 @@ function App() {
   const [currentFile, setCurrentFile] = useState(null);
   const [connectionStatus, setConnectionStatus] = useState('disconnected');
   const [isDarkTheme, setIsDarkTheme] = useState(true);
+  const [isSavingNewFile, setIsSavingNewFile] = useState(false); // Controle do modal
+  const [newFileName, setNewFileName] = useState(''); // Nome do novo arquivo
+  const [selectedFolder, setSelectedFolder] = useState(null); // Pasta selecionada
+  const [files, setFiles] = useState([]);
+  const fetchFiles = () => {
+    api.get('/files')
+      .then((response) => {
+        setFiles(response.data.files);
+      })
+      .catch((error) => {
+        console.error('Erro ao buscar arquivos:', error);
+      });
+  };
+  useEffect(() => {
+    
+
+    
+  }, []);
 
   useEffect(() => {
     const checkConnection = () => {
@@ -34,6 +53,7 @@ function App() {
     };
   
     checkConnection();
+    fetchFiles();
   
     // Verifica a cada 10 segundos
     const interval = setInterval(checkConnection, 10000);
@@ -54,19 +74,50 @@ function App() {
 
   const saveFile = async () => {
     if (!currentFile) {
-      alert('Nenhum arquivo aberto para salvar.');
+      setIsSavingNewFile(true); // Abrir modal para salvar novo arquivo
       return;
     }
-
+  
     try {
-      await api.post(`/files/${currentFile.name}`, { content: code });
+      // Verificar conteúdo antes de enviar
+      //console.log('Salvando conteúdo:', JSON.stringify(code));
+  
+      await api.post('/save_or_create', {
+        filePath: currentFile.name,
+        content: code,
+      });
+  
       alert('Arquivo salvo com sucesso!');
-      setConnectionStatus('connected');
     } catch (error) {
       alert('Erro ao salvar o arquivo.');
-      setConnectionStatus('disconnected');
       console.error(error);
     }
+  };
+
+  const saveNewFile = async (fileName, folderPath) => {
+  try {
+    // Enviar o nome do arquivo, pasta e o conteúdo atual do editor
+    await api.post('/save_or_create', {
+      filePath: folderPath ? `${folderPath}/${fileName}` : fileName,
+      content: code, // Inclui o conteúdo do editor
+    });
+
+    alert('Arquivo criado e salvo com sucesso!');
+    setIsSavingNewFile(false);
+    const event = new CustomEvent('refreshFileExplorer');
+    window.dispatchEvent(event);
+    
+    setCurrentFile({ name: folderPath ? `${folderPath}/${fileName}` : fileName }); // Atualiza o arquivo atual
+  } catch (error) {
+    alert('Erro ao criar ou salvar o arquivo.');
+    console.error(error);
+  }
+};
+  
+  
+  const cancelSaveNewFile = () => {
+    setIsSavingNewFile(false);
+    setNewFileName('');
   };
 
   const closeFile = () => {
@@ -98,7 +149,7 @@ function App() {
         <MainContainer>
           {/* Explorador de Arquivos */}
           <LeftPane>
-            <FileExplorer setCode={setCode} setCurrentFile={setCurrentFile} />
+          <FileExplorer setCode={setCode} setCurrentFile={setCurrentFile} files={files} />
           </LeftPane>
 
           {/* Editor */}
@@ -130,6 +181,14 @@ function App() {
             <Console output={output} />
           </RightPane>
         </MainContainer>
+
+        {/* Modal para Salvar Novo Arquivo */}
+        <SaveFileModal
+          isOpen={isSavingNewFile}
+          onSave={saveNewFile}
+          onCancel={cancelSaveNewFile}
+          folders={files.filter((file) => file.type === 'folder')} // Passa apenas pastas
+        />
 
         {/* Footer */}
         <Footer

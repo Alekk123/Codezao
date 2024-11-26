@@ -23,7 +23,22 @@ function FileExplorer({ setCode, setCurrentFile }) {
   const [currentFolder, setCurrentFolder] = useState(null);
 
   useEffect(() => {
+
     fetchFiles();
+    
+    const handleRefresh = () => {
+      fetchFiles();
+    };
+    // Escuta o evento customizado
+    window.addEventListener('refreshFileExplorer', handleRefresh);
+
+    // Cleanup no unmount
+    return () => {
+      window.removeEventListener('refreshFileExplorer', handleRefresh);
+    };
+
+
+    
   }, []);
 
   const fetchFiles = () => {
