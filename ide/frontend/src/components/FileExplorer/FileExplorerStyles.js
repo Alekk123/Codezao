@@ -108,6 +108,12 @@ export const ExplorerContainer = styled.div`
     color: ${({ theme }) => theme.colors.text};
   }
 
+  .folder.selected {
+    background-color: ${({ theme }) => theme.colors.highlight};
+    color: white;
+    border-radius: 5px;
+  }
+
   .file {
     color: ${({ theme }) => theme.colors.text};
   }

@@ -101,8 +101,8 @@ def compile():
 def rename_item():
     """Renomeia um arquivo ou pasta."""
     data = request.get_json()
-    old_name = data.get('oldName')
-    new_name = data.get('newName')
+    old_name = data.get('oldName', '').strip()  # Remove espaços desnecessários
+    new_name = data.get('newName', '').strip()
 
     if not old_name or not new_name:
         return jsonify({'error': 'Nome antigo e novo são necessários'}), 400
@@ -128,11 +128,12 @@ def delete_item():
     Exclui um arquivo ou pasta.
     """
     data = request.get_json()
-    name = data.get('name')
+    name = data.get('name', '').strip()  # Remove espaços desnecessários
 
     if not name:
         return jsonify({'error': 'Nome inválido'}), 400
 
+    # Calcula o caminho completo
     target_path = os.path.join(FILES_DIR, name)
 
     try:
@@ -167,11 +168,12 @@ def create_file_or_folder():
     data = request.get_json()
     name = data.get('name')
     is_folder = data.get('isFolder', False)
+    parent = data.get('parent', '')  # Caminho relativo da pasta pai
 
     if not name:
         return jsonify({'error': 'Nome inválido'}), 400
 
-    target_path = os.path.join(FILES_DIR, name)
+    target_path = os.path.join(FILES_DIR, parent, name) if parent else os.path.join(FILES_DIR, name)
 
     try:
         if is_folder:

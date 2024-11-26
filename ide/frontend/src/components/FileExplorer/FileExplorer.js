@@ -20,6 +20,7 @@ function FileExplorer({ setCode, setCurrentFile }) {
   const [renaming, setRenaming] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState(null);
+  const [currentFolder, setCurrentFolder] = useState(null);
 
   useEffect(() => {
     fetchFiles();
@@ -45,7 +46,7 @@ function FileExplorer({ setCode, setCurrentFile }) {
   };
 
   const handleCreate = (isFolder) => {
-    setNewItem({ isFolder, name: '' });
+    setNewItem({ isFolder, name: '', parent: currentFolder });
   };
 
   const saveNewItem = () => {
@@ -53,10 +54,11 @@ function FileExplorer({ setCode, setCurrentFile }) {
       alert('O nome não pode ser vazio.');
       return;
     }
-
+  
     api.post('/create', {
       name: newItem.name,
       isFolder: newItem.isFolder,
+      parent: newItem.parent, // Envia o caminho da pasta pai
     })
       .then(() => {
         fetchFiles();
@@ -71,19 +73,27 @@ function FileExplorer({ setCode, setCurrentFile }) {
     setNewItem(null);
   };
 
-  const handleRename = (fileOrFolder, newName) => {
+  const selectFolder = (folder) => {
+    setCurrentFolder(folder);
+  };
+
+  const handleRename = (fileOrFolder, newName, currentPath = '') => {
     if (!newName.trim()) {
       cancelRenaming();
       return;
     }
-
-    api.post('/rename', { oldName: fileOrFolder.name, newName })
+  
+    // Caminho completo antigo e novo
+    const oldFullPath = currentPath ? `${currentPath}/${fileOrFolder.name}` : fileOrFolder.name;
+    const newFullPath = currentPath ? `${currentPath}/${newName}` : newName;
+  
+    api.post('/rename', { oldName: oldFullPath, newName: newFullPath })
       .then(() => {
-        fetchFiles();
+        fetchFiles(); // Atualiza a lista de arquivos após renomear
         setRenaming(null);
       })
       .catch((error) => {
-        console.error('Erro ao renomear:', error);
+        console.error('Erro ao renomear item:', error);
       });
   };
 
@@ -91,26 +101,30 @@ function FileExplorer({ setCode, setCurrentFile }) {
     setRenaming(null);
   };
 
-  const handleDelete = (fileOrFolder) => {
+  const handleDelete = (fileOrFolder, currentPath = '') => {
     const confirmDelete = window.confirm(
       `Tem certeza que deseja excluir "${fileOrFolder.name}"?`
     );
-
+  
     if (confirmDelete) {
-      api.post('/delete', { name: fileOrFolder.name })
+      // Caminho completo para exclusão
+      const fullPath = currentPath ? `${currentPath}/${fileOrFolder.name}` : fileOrFolder.name;
+  
+      api.post('/delete', { name: fullPath })
         .then(() => {
-          fetchFiles();
+          fetchFiles(); // Atualiza a lista de arquivos após exclusão
         })
         .catch((error) => {
           console.error('Erro ao excluir item:', error);
         });
     }
   };
+  
 
   const handleFileClick = (path) => {
     api.get(`/files/${path}`)
       .then((response) => {
-        setCode(response.data.content);
+        setCode(response.data.content); 
         setCurrentFile({ name: path });
       })
       .catch((error) => {
@@ -135,31 +149,94 @@ function FileExplorer({ setCode, setCurrentFile }) {
   };
 
   const renderItems = (items, depth = 0, currentPath = '') => {
-    // Use searchResults se a busca estiver ativa, caso contrário use items normalmente
     const itemsToRender = searchResults || items;
   
-    return itemsToRender.map((item) => {
-      const fullPath = currentPath ? `${currentPath}/${item.name}` : item.name;
-      const isRenaming = renaming === item.name;
+    return (
+      <>
+        {/* Identificador visual para a Root */}
+        {depth === 0 && (
+          <div
+            className={`folder indent ${currentFolder === null ? 'selected' : ''}`}
+            onClick={() => selectFolder(null)} // Define root como pasta selecionada
+          >
+            <FiFolder />
+            {/* Espaço vazio para manter alinhamento */}
+            <span style={{ visibility: 'hidden' }}>Root</span>
+          </div>
+        )}
   
-      if (item.type === 'folder') {
-        return (
-          <div key={fullPath}>
+        {itemsToRender.map((item) => {
+          const fullPath = currentPath ? `${currentPath}/${item.name}` : item.name;
+          const isRenaming = renaming === item.name;
+  
+          if (item.type === 'folder') {
+            return (
+              <div key={fullPath}>
+                <div
+                  className={`folder indent ${
+                    currentFolder === fullPath ? 'selected' : ''
+                  }`}
+                  style={{ marginLeft: depth * 20 }}
+                  onClick={(e) => {
+                    e.stopPropagation(); // Evita conflitos com outros cliques
+                    toggleFolder(fullPath);
+                  }}
+                  onDoubleClick={(e) => {
+                    e.stopPropagation(); // Evita conflitos com outros eventos
+                    selectFolder(fullPath);
+                  }}
+                >
+                  {expandedFolders[fullPath] ? <FiChevronDown /> : <FiChevronRight />}
+                  <FiFolder />
+                  {isRenaming ? (
+                    <div className="rename-actions">
+                      <input
+                        className="rename-input"
+                        defaultValue={item.name}
+                        onBlur={(e) => handleRename(item, e.target.value, currentPath)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleRename(item, e.target.value, currentPath);
+                          if (e.key === 'Escape') cancelRenaming();
+                        }}
+                        autoFocus
+                      />
+                      <button onClick={cancelRenaming}>Cancelar</button>
+                    </div>
+                  ) : (
+                    <span>{item.name}</span>
+                  )}
+                  <div className="file-actions">
+                    <button onClick={() => setRenaming(item.name)} title="Renomear">
+                      <FiEdit />
+                    </button>
+                    <button onClick={() => handleDelete(item, currentPath)} title="Excluir">
+                      <FiTrash />
+                    </button>
+                  </div>
+                </div>
+                {expandedFolders[fullPath] && (
+                  <div>{renderItems(item.files || [], depth + 1, fullPath)}</div>
+                )}
+              </div>
+            );
+          }
+  
+          return (
             <div
-              className="folder indent"
+              key={fullPath}
+              className="file indent"
               style={{ marginLeft: depth * 20 }}
-              onClick={() => toggleFolder(fullPath)}
+              onClick={() => handleFileClick(fullPath)}
             >
-              {expandedFolders[fullPath] ? <FiChevronDown /> : <FiChevronRight />}
-              <FiFolder />
+              <FiFile />
               {isRenaming ? (
                 <div className="rename-actions">
                   <input
                     className="rename-input"
                     defaultValue={item.name}
-                    onBlur={(e) => handleRename(item, e.target.value)}
+                    onBlur={(e) => handleRename(item, e.target.value, currentPath)}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleRename(item, e.target.value);
+                      if (e.key === 'Enter') handleRename(item, e.target.value, currentPath);
                       if (e.key === 'Escape') cancelRenaming();
                     }}
                     autoFocus
@@ -173,54 +250,15 @@ function FileExplorer({ setCode, setCurrentFile }) {
                 <button onClick={() => setRenaming(item.name)} title="Renomear">
                   <FiEdit />
                 </button>
-                <button onClick={() => handleDelete(item)} title="Excluir">
+                <button onClick={() => handleDelete(item, currentPath)} title="Excluir">
                   <FiTrash />
                 </button>
               </div>
             </div>
-            {expandedFolders[fullPath] && (
-              <div>{renderItems(item.files || [], depth + 1, fullPath)}</div>
-            )}
-          </div>
-        );
-      }
-
-      return (
-        <div
-          key={fullPath}
-          className="file indent"
-          style={{ marginLeft: depth * 20 }}
-          onClick={() => handleFileClick(fullPath)}
-        >
-          <FiFile />
-          {isRenaming ? (
-            <div className="rename-actions">
-              <input
-                className="rename-input"
-                defaultValue={item.name}
-                onBlur={(e) => handleRename(item, e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleRename(item, e.target.value);
-                  if (e.key === 'Escape') cancelRenaming();
-                }}
-                autoFocus
-              />
-              <button onClick={cancelRenaming}>Cancelar</button>
-            </div>
-          ) : (
-            <span>{item.name}</span>
-          )}
-          <div className="file-actions">
-            <button onClick={() => setRenaming(item.name)} title="Renomear">
-              <FiEdit />
-            </button>
-            <button onClick={() => handleDelete(item)} title="Excluir">
-              <FiTrash />
-            </button>
-          </div>
-        </div>
-      );
-    });
+          );
+        })}
+      </>
+    );
   };
 
   if (loading) {

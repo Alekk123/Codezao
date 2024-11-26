@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import MonacoEditor, { monaco } from 'react-monaco-editor';
 import { EditorContainer } from './EditorStyles';
 
-function Editor({ code, setCode, isDarkTheme }) {
+function Editor({ code, setCode, isDarkTheme, language = 'codezao', theme = 'vs-dark', options = {} }) {
   useEffect(() => {   
     monaco.languages.register({ id: 'codezao' });
     monaco.languages.setMonarchTokensProvider('codezao', {
@@ -41,18 +41,17 @@ function Editor({ code, setCode, isDarkTheme }) {
     });
   }, []);
 
-  const options = {
-    selectOnLineNumbers: true,
-  };
-
   return (
       <MonacoEditor
         width="100%"
         height="calc(100vh - 40px)"
-        language="codezao"
-        theme={isDarkTheme ? 'vs-dark' : 'custom-light'}
+        language={language}
+        theme={isDarkTheme ? theme : 'custom-light'}
         value={code}
-        options={options}
+        options={{
+          selectOnLineNumbers: true,
+          ...options, // Permite que `options` seja sobrescrito se passado como prop
+        }}
         onChange={(newValue) => setCode(newValue)}
       />
   );
